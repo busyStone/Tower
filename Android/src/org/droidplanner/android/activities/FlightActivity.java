@@ -36,9 +36,12 @@ import org.droidplanner.android.fragments.control.FlightControlManagerFragment;
 import org.droidplanner.android.fragments.FlightMapFragment;
 import org.droidplanner.android.fragments.TelemetryFragment;
 import org.droidplanner.android.fragments.mode.FlightModePanel;
+import org.droidplanner.android.maps.providers.DPMapProvider;
 import org.droidplanner.android.utils.prefs.AutoPanMode;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import timber.log.Timber;
 
 public class FlightActivity extends DrawerNavigationUI {
 
@@ -189,7 +192,7 @@ public class FlightActivity extends DrawerNavigationUI {
         mSlidingPanel = (SlidingUpPanelLayout) findViewById(R.id.slidingPanelContainer);
         warningView = (TextView) findViewById(R.id.failsafeTextView);
 
-        setupMapFragment();
+        setupMapFragment(false);
 
         mGoToMyLocation = (FloatingActionButton) findViewById(R.id.my_location_button);
         mGoToDroneLocation = (FloatingActionButton) findViewById(R.id.drone_location_button);
@@ -399,8 +402,11 @@ public class FlightActivity extends DrawerNavigationUI {
      * initialize the map fragment, this checks if the Google Play Services
      * binary is installed and up to date.
      */
-    private void setupMapFragment() {
-        if (mapFragment == null && isGooglePlayServicesValid(true)) {
+    private void setupMapFragment(boolean showErrorDialog) {
+        final boolean isGMSValid = isGooglePlayServicesValid(showErrorDialog);
+
+
+        if (mapFragment == null){// && isGooglePlayServicesValid(true)) {
             mapFragment = (FlightMapFragment) fragmentManager.findFragmentById(R.id.flight_map_fragment);
             if (mapFragment == null) {
                 mapFragment = new FlightMapFragment();
@@ -424,7 +430,7 @@ public class FlightActivity extends DrawerNavigationUI {
     @Override
     public void onStart() {
         super.onStart();
-        setupMapFragment();
+        setupMapFragment(true);
     }
 
     @Override

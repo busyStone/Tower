@@ -44,6 +44,7 @@ import org.droidplanner.android.utils.unit.UnitManager;
 import org.droidplanner.android.utils.unit.providers.length.LengthUnitProvider;
 import org.droidplanner.android.utils.unit.systems.UnitSystem;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 
@@ -223,15 +224,37 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
             final DPMapProvider[] providers = DPMapProvider.values();
             final int providersCount = providers.length;
 
-            final CharSequence[] providersNames = new CharSequence[providersCount];
-            final CharSequence[] providersNamesValues = new CharSequence[providersCount];
+            final CharSequence[] providersNamesTemp = new CharSequence[providersCount];
+            final CharSequence[] providersNamesValuesTemp = new CharSequence[providersCount];
+            final Context context = getContext();
+            int validCnt = 0;
             for (int i = 0; i < providersCount; i++) {
+                if (!providers[i].IsMapProviderValid(context)){ // may check valid
+                    continue;
+                }
+
                 final String providerName = providers[i].name();
-                providersNamesValues[i] = providerName;
-                providersNames[i] = providerName.toLowerCase(Locale.ENGLISH).replace('_', ' ');
+                providersNamesValuesTemp[validCnt] = providerName;
+                providersNamesTemp[validCnt] = providerName.toLowerCase(Locale.ENGLISH).replace('_', ' ');
+
+                validCnt++;
             }
 
-            final String defaultProviderName = dpPrefs.getMapProviderName();
+            // to cut array
+            final CharSequence[] providersNames = new CharSequence[validCnt];
+            final CharSequence[] providersNamesValues = new CharSequence[validCnt];
+            for (int i = 0; i < validCnt; i++){
+                providersNames[i] = providersNamesTemp[i];
+                providersNamesValues[i] = providersNamesValuesTemp[i];
+            }
+
+            String defaultProviderName = dpPrefs.getMapProviderName();
+
+            // providerNamesValues must > 0
+            final DPMapProvider defaultProvider = DPMapProvider.getMapProvider(defaultProviderName);
+            if (defaultProvider == null || !defaultProvider.IsMapProviderValid(context)){
+                defaultProviderName = providersNamesValues[0].toString();
+            }
 
             mapsProvidersPref.setEntries(providersNames);
             mapsProvidersPref.setEntryValues(providersNamesValues);

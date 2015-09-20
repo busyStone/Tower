@@ -34,6 +34,8 @@ import org.droidplanner.android.proxy.mission.item.markers.MissionItemMarkerInfo
 import org.droidplanner.android.utils.DroneHelper;
 import org.droidplanner.android.utils.prefs.AutoPanMode;
 
+import timber.log.Timber;
+
 public class FlightMapFragment extends DroneMap implements DPMap.OnMapLongClickListener,
         DPMap.OnMarkerClickListener, DPMap.OnMarkerDragListener, GuidedDialogListener {
 

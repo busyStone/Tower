@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import timber.log.Timber;
+
 public abstract class DroneMap extends ApiListenerFragment {
 
     public static final String ACTION_UPDATE_MAP = Utils.PACKAGE_NAME + ".action.UPDATE_MAP";
@@ -245,7 +247,11 @@ public abstract class DroneMap extends ApiListenerFragment {
 
 	private void updateMapFragment() {
 		// Add the map fragment instance (based on user preference)
-		final DPMapProvider mapProvider = mAppPrefs.getMapProvider();
+        DPMapProvider mapProvider = mAppPrefs.getMapProvider();
+        final Context context = getActivity().getApplicationContext();
+        if (!mapProvider.IsMapProviderValid(context)){
+            mapProvider = DPMapProvider.getValidMapProvider(context);
+        }
 
 		final FragmentManager fm = getChildFragmentManager();
 		mMapFragment = (DPMap) fm.findFragmentById(R.id.map_fragment_container);
