@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Camera;
 import android.graphics.Point;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -25,6 +26,8 @@ import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationListener;
+import com.amap.api.location.LocationManagerProxy;
+import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.LocationSource;
@@ -75,7 +78,7 @@ import com.o3dr.services.android.lib.drone.property.Gps;
 import timber.log.Timber;
 
 public class AMapMapFragment extends SupportMapFragment implements DPMap,
-        AMap.OnMapLoadedListener {
+        AMap.OnMapLoadedListener,AMapLocationListener,LocationSource {
 
     private final AtomicReference<AutoPanMode> mPanMode = new AtomicReference<AutoPanMode>(
             AutoPanMode.DISABLED);
@@ -106,11 +109,15 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         AMap map = getMap();
         setupMapUI(map);
         setupMapListeners(map);
+
+        map.setMyLocationEnabled(true);
+        map.setMyLocationType(AMap.LOCATION_TYPE_LOCATE);
+        map.setLocationSource(this);
+
+        initLocation();
     }
 
     private void setupMapUI(AMap map){
-        map.setMyLocationEnabled(false);
-
         UiSettings mUiSettings = map.getUiSettings();
         mUiSettings.setMyLocationButtonEnabled(false);
         mUiSettings.setCompassEnabled(false);
@@ -258,6 +265,31 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         return builder.build();
     }
 
+    private AMapLocation getLastLocation(){
+        return LocationManagerProxy.getInstance(getActivity())
+                .getLastKnownLocation(LocationProviderProxy.AMapNetwork);
+    }
+
+    private void requestLastLoaction(){
+        AMapLocation aMapLocation = getLastLocation();
+        if (aMapLocation != null && mLocationListener != null){
+            mLocationListener.onLocationChanged(aMapLocation);
+        }
+    }
+
+    private static final float GO_TO_MY_LOCATION_ZOOM = 17f;
+
+    private void requestGoToMyLocation(){
+        AMapLocation aMapLocation = getLastLocation();
+        if (aMapLocation != null){
+            updateCamera(DroneHelper.LocationToCoord(aMapLocation), GO_TO_MY_LOCATION_ZOOM);
+
+            if (mLocationListener != null){
+                mLocationListener.onLocationChanged(aMapLocation);
+            }
+        }
+    }
+
     // ---------------------------------------------------------------------------------------------
     // Broadcast Receiver
     private final BroadcastReceiver eventReceiver = new BroadcastReceiver() {
@@ -285,12 +317,104 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         }
     };
 
+
+    // ---------------------------------------------------------------------------------------------
+    // LocationSource
+    private OnLocationChangedListener mLocationChangedListener;
+    private LocationManagerProxy mAMapLocationManager;
+
+    private void initLocation(){
+        mAMapLocationManager = LocationManagerProxy.getInstance(getActivity());
+        //此方法为每隔固定时间会发起一次定位请求，为了减少电量消耗或网络流量消耗，
+        //注意设置合适的定位时间的间隔，并且在合适时间调用removeUpdates()方法来取消定位请求
+        //在定位结束后，在合适的生命周期调用destroy()方法
+        //其中如果间隔时间为-1，则定位只定一次
+        mAMapLocationManager.requestLocationData(
+                LocationProviderProxy.AMapNetwork, -1, 15, this);
+        mAMapLocationManager.setGpsEnable(false);
+    }
+
+    @Override
+    public void activate(OnLocationChangedListener listener){
+        mLocationChangedListener = listener;
+        if (mAMapLocationManager == null){
+            mAMapLocationManager = LocationManagerProxy.getInstance(getActivity());
+            mAMapLocationManager.requestLocationData(LocationProviderProxy.AMapNetwork,
+                    20*1000, // minTime
+                    10,      // minDistance
+                    this);
+        }
+    }
+
+    @Override
+    public void deactivate(){
+        mLocationChangedListener = null;
+
+        if (mAMapLocationManager != null) {
+            mAMapLocationManager.removeUpdates(this);
+            mAMapLocationManager.destroy();
+        }
+        mAMapLocationManager = null;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // AMapLocationListener
+
+    private Marker userMarker;
+
+    @Override
+    public void onLocationChanged(AMapLocation aMapLocation){
+
+        if (aMapLocation == null){
+            return;
+        }
+
+        if (userMarker == null){
+            final MarkerOptions options = new MarkerOptions()
+                    .position(new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude()))
+                    .draggable(false)
+                    .setFlat(true)
+                    .visible(true)
+                    .anchor(0.5f, 0.5f)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.user_location));
+            getMap().addMarker(options);
+        }else{
+            userMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude()));
+        }
+
+        if (mPanMode.get() == AutoPanMode.USER) {
+            Timber.d("User location changed.");
+            updateCamera(DroneHelper.LocationToCoord(aMapLocation),
+                    (int) getMap().getCameraPosition().zoom);
+        }
+
+        if (mLocationChangedListener != null){
+            mLocationChangedListener.onLocationChanged(aMapLocation);
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // LocationListener
+    @Override
+    public void onLocationChanged(Location location) {
+    }
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+    @Override
+    public void onProviderDisabled(String provider) {
+    }
+
     // ---------------------------------------------------------------------------------------------
     // AMap.OnMapLoadedListener
     // TODO: 15/9/18 setupMapOverlay
     @Override
     public void onMapLoaded(){
-
+        // 没有调用
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -489,7 +613,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         //Update the listener with the last received location
         if (mLocationListener != null) {
-
+            requestLastLoaction();
         }
     }
 
@@ -646,7 +770,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     // TODO: 15/9/19 async
     @Override
     public void goToMyLocation(){
-
+        requestGoToMyLocation();
     }
 
     @Override
@@ -752,6 +876,13 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                 .registerReceiver(eventReceiver, eventFilter);
 
         setupMap();
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+
+        deactivate();
     }
 
     @Override
