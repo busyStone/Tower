@@ -164,6 +164,8 @@
     <string name="menu_map_type_normal">Normal</string>
     <string name="menu_map_type_terrain">Terrain</string>
 
+    <string name="menu_map_type_night">Night</string>
+
     <!-- Parameters screen -->
     <string name="params_click_to_refresh">No Parameters</string>
     <string name="refreshing_parameters">Refreshing Parameters…</string>
@@ -326,6 +328,8 @@
     <string name="pref_ui_realtime_footprints_title">Realtime camera footprint</string>
     <string name="pref_ui_realtime_footprints_summary">Display the camera projection on the ground in realtime</string>
 
+    <string name="pref_title_amap_maps">AMap Maps Preferences</string>
+
     <!-- Others (when possible move to a grouping above) -->
     <string name="mode_switch">Assign RC channel 5 to a switch on your radio to control flight modes. Move the switch to each position and select the desired flight mode below.</string>
     <string name="msg_connect_first">Please connect first</string>
@@ -461,5 +465,12 @@
     <string name="error_kill_switch_failed">KILL SWITCH command failed!</string>
     <string name="pref_max_alt_warning_title">Max altitude exceeded warning</string>
     <string name="pref_max_alt_warning_summary">Enable for repeated warnings when flying above the set max altitude.</string>
+
+    <!-- AMap Offline preferences -->
+    <string name="pref_title_amap_map_download">Download Offline Map</string>
+    <string name="pref_summary_amap_map_download">Click to cache map for use while offline</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

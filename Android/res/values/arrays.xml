@@ -60,6 +60,17 @@
         <item>terrain</item>
     </string-array>
 
+    <string-array name="AMapTypes">
+        <item>@string/menu_map_type_satellite</item>
+        <item>@string/menu_map_type_normal</item>
+        <item>@string/menu_map_type_night</item>
+    </string-array>
+    <string-array name="AMapTypeValues">
+        <item>satellite</item>
+        <item>normal</item>
+        <item>night</item>
+    </string-array>
+
     <string-array name="TelemetryBaudTypes">
         <item name="38400">38400</item>
         <item name="57600">57600</item>
