@@ -331,7 +331,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         //其中如果间隔时间为-1，则定位只定一次
         mAMapLocationManager.requestLocationData(
                 LocationProviderProxy.AMapNetwork, -1, 15, this);
-        mAMapLocationManager.setGpsEnable(false);
+        mAMapLocationManager.setGpsEnable(true);
     }
 
     @Override
@@ -377,7 +377,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                     .visible(true)
                     .anchor(0.5f, 0.5f)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.user_location));
-            getMap().addMarker(options);
+            userMarker = getMap().addMarker(options);
         }else{
             userMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude()));
         }
@@ -386,6 +386,10 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             Timber.d("User location changed.");
             updateCamera(DroneHelper.LocationToCoord(aMapLocation),
                     (int) getMap().getCameraPosition().zoom);
+        }
+
+        if (mLocationListener != null){
+            mLocationListener.onLocationChanged(aMapLocation);
         }
 
         if (mLocationChangedListener != null){
@@ -439,7 +443,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     @Override
     public void clearFlightPath(){
-        if (flightPath == null){
+        if (flightPath != null){
             List<LatLng>oldFlightPath = flightPath.getPoints();
             oldFlightPath.clear();
             flightPath.setPoints(oldFlightPath);
@@ -606,7 +610,6 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         mMarkerClickListener = listener;
     }
 
-    // TODO: 15/9/18 call location
     @Override
     public void setLocationListener(android.location.LocationListener receiver) {
         mLocationListener = receiver;
@@ -617,7 +620,6 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         }
     }
 
-    // TODO: 15/9/18
     @Override
     public void updateCamera(final LatLong coord, final float zoomLevel) {
         if (coord != null) {
@@ -761,13 +763,18 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         }
     }
 
-    // TODO: 15/9/19 async
     @Override
     public void zoomToFitMyLocation(final List<LatLong> coords){
-
+        final Location myLocation = getLastLocation();
+        if (myLocation != null) {
+            final List<LatLong> updatedCoords = new ArrayList<LatLong>(coords);
+            updatedCoords.add(DroneHelper.LocationToCoord(myLocation));
+            zoomToFit(updatedCoords);
+        } else {
+            zoomToFit(coords);
+        }
     }
 
-    // TODO: 15/9/19 async
     @Override
     public void goToMyLocation(){
         requestGoToMyLocation();
