@@ -8,10 +8,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.Camera;
 import android.graphics.Point;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.app.FragmentActivity;
@@ -29,6 +27,7 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.LocationManagerProxy;
 import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps.AMap;
+import com.amap.api.maps.AMapException;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapsInitializer;
@@ -83,7 +82,6 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private final AtomicReference<AutoPanMode> mPanMode = new AtomicReference<AutoPanMode>(
             AutoPanMode.DISABLED);
 
-    protected DroidPlannerApp dpApp;
     private DroidPlannerPrefs mAppPrefs;
 
     private static final IntentFilter eventFilter = new IntentFilter();
@@ -94,7 +92,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     }
 
     private Drone getDroneApi() {
-        return dpApp.getDrone();
+        return ((DroidPlannerApp) getActivity().getApplication()).getDrone();
     }
 
     private void updateCamera(final LatLong coord) {
@@ -626,7 +624,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     public void updateCamera(final LatLong coord, final float zoomLevel) {
         if (coord != null) {
             getMap().animateCamera(CameraUpdateFactory.newLatLngZoom(
-                            DroneHelper.CoordToAMapLatLang(coord), zoomLevel));
+                    DroneHelper.CoordToAMapLatLang(coord), zoomLevel));
         }
     }
 
@@ -799,7 +797,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         final float currentZoomLevel = getMap().getCameraPosition().zoom;
         final LatLong droneLocation = gps.getPosition();
-        updateCamera(droneLocation, (int)currentZoomLevel);
+        updateCamera(droneLocation, (int) currentZoomLevel);
     }
 
     @Override
@@ -853,21 +851,14 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     // ---------------------------------------------------------------------------------------------
     // SupportMapFragment
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        dpApp = (DroidPlannerApp) activity.getApplication();
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup viewGroup, Bundle bundle){
         setHasOptionsMenu(true);
 
-        final FragmentActivity activity = getActivity();
-        final Context context = activity.getApplicationContext();
         final View view = super.onCreateView(inflater,viewGroup,bundle);
 
-        mAppPrefs = new DroidPlannerPrefs(context);
+        mAppPrefs = new DroidPlannerPrefs(getActivity().getApplicationContext());
 
         final Bundle args = getArguments();
         if (args != null){
@@ -883,6 +874,11 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
                 .registerReceiver(eventReceiver, eventFilter);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
 
         setupMap();
     }
