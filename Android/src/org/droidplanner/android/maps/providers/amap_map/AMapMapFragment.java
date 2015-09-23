@@ -109,7 +109,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         setupMapListeners(map);
 
         map.setMyLocationEnabled(true);
-        map.setMyLocationType(AMap.LOCATION_TYPE_LOCATE);
+        map.setMyLocationType(AMap.LOCATION_TYPE_MAP_FOLLOW);
         map.setLocationSource(this);
 
         map.setMapType(AMapPrefFragement.getMapType(getActivity().getApplicationContext()));
