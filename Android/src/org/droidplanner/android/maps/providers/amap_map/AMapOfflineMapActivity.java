@@ -593,6 +593,19 @@ public class AMapOfflineMapActivity extends AppCompatActivity implements
 
     }
 
+    @Override
+    public void onCheckUpdate(boolean hasNew, String name) {
+        Timber.i("onCheckUpdate " + name + " : " + hasNew);
+
+    }
+
+    @Override
+    public void onRemove(boolean success, String name, String describe) {
+        Timber.i("onRemove " + name + " : " + success + " , "
+                + describe);
+        handler.sendEmptyMessage(UPDATE_LIST);
+    }
+
     // ---------------------------------------------------------------------------------------------
     // life cycle
 
