@@ -93,10 +93,10 @@ android {
 
     signingConfigs {
         release {
-            storeFile getAppKeystoreFile()
-            storePassword getAppKeystorePassword()
-            keyAlias getAppKey()
-            keyPassword getAppKeyPassword()
+            storeFile file(System.console().readLine("\n\$ Enter keystore path: ")) // getAppKeystoreFile()
+            storePassword new String(System.console().readPassword("\n\$ Enter keystore password: ")) // getAppKeystorePassword()
+            keyAlias System.console().readLine("\n\$ Enter key alias: ") // getAppKey()
+            keyPassword new String(System.console().readPassword("\n\$ Enter key password: ")) // getAppKeyPassword()
         }
     }
 
