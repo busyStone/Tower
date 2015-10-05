@@ -39,8 +39,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import timber.log.Timber;
-
 public abstract class DroneMap extends ApiListenerFragment {
 
     public static final String ACTION_UPDATE_MAP = Utils.PACKAGE_NAME + ".action.UPDATE_MAP";

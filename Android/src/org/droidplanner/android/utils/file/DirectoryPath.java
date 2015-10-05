@@ -48,6 +48,8 @@ public class DirectoryPath {
 		return getPublicDataPath() + "/Maps/";
 	}
 
+	static public String getAMapPath() { return getPublicDataPath() + "/AMap/"; }
+
 	/**
 	 * Storage folder for stacktraces
 	 */

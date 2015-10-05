@@ -57,6 +57,7 @@ import org.droidplanner.android.maps.MarkerInfo;
 import org.droidplanner.android.maps.providers.DPMapProvider;
 import org.droidplanner.android.utils.DroneHelper;
 import org.droidplanner.android.utils.collection.HashBiMap;
+import org.droidplanner.android.utils.file.DirectoryPath;
 import org.droidplanner.android.utils.prefs.AutoPanMode;
 import org.droidplanner.android.utils.prefs.DroidPlannerPrefs;
 
@@ -97,13 +98,14 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     private void updateCamera(final LatLong coord) {
         if (coord != null) {
-            getMap().animateCamera(CameraUpdateFactory.newCameraPosition(
-                    new CameraPosition(DroneHelper.CoordToAMapLatLang(coord), 18, 0, 30)
-            ));
+            getMap().animateCamera(CameraUpdateFactory.newLatLngZoom(
+                    DroneHelper.CoordToAMapLatLang(coord),
+                    getMap().getCameraPosition().zoom));
         }
     }
 
     private void setupMap(){
+
         AMap map = getMap();
         setupMapUI(map);
         setupMapListeners(map);
@@ -864,6 +866,11 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         if (args != null){
             maxFlightPathSize = args.getInt(EXTRA_MAX_FLIGHT_PATH_SIZE);
         }
+
+        MapsInitializer.sdcardDir = DirectoryPath.getAMapPath();
+        try{
+            MapsInitializer.initialize(getActivity().getBaseContext());
+        }catch (RemoteException e){}
 
         return view;
     }

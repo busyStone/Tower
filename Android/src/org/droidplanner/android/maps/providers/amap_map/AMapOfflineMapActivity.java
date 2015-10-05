@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amap.api.maps.AMapException;
+import com.amap.api.maps.MapsInitializer;
 import com.amap.api.maps.offlinemap.OfflineMapCity;
 import com.amap.api.maps.offlinemap.OfflineMapManager;
 import com.amap.api.maps.offlinemap.OfflineMapProvince;
@@ -34,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import timber.log.Timber;
+
+import org.droidplanner.android.utils.file.DirectoryPath;
 
 
 public class AMapOfflineMapActivity extends AppCompatActivity implements
@@ -617,7 +620,7 @@ public class AMapOfflineMapActivity extends AppCompatActivity implements
 		 */
         // Demo中为了其他界面可以使用下载的离线地图，使用默认位置存储，屏蔽了自定义设置
         // MapsInitialihenger.sdcardDir =OffLineMapUtils.getSdCacheDir(this);
-
+        MapsInitializer.sdcardDir = DirectoryPath.getAMapPath();
         setContentView(R.layout.activity_amap_offline_map);
         context = AMapOfflineMapActivity.this;
         initDialog();
