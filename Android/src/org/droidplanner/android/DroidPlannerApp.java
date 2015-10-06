@@ -58,6 +58,8 @@ public class DroidPlannerApp extends Application implements DroneListener, Tower
     public static final String ACTION_DRONE_EVENT = Utils.PACKAGE_NAME + ".ACTION_DRONE_EVENT";
     public static final String EXTRA_DRONE_EVENT = "extra_drone_event";
 
+    public static boolean IsGMSHadChecked = false;
+
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

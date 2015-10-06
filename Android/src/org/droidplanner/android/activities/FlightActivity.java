@@ -430,7 +430,15 @@ public class FlightActivity extends DrawerNavigationUI {
     @Override
     public void onStart() {
         super.onStart();
-        setupMapFragment(true);
+
+        // 仅提示一次
+        boolean showErrorDialog = false;
+        if (!dpApp.IsGMSHadChecked){
+            showErrorDialog = true;
+            dpApp.IsGMSHadChecked = true;
+        }
+
+        setupMapFragment(showErrorDialog);
     }
 
     @Override
