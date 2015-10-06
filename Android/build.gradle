@@ -93,10 +93,10 @@ android {
 
     signingConfigs {
         release {
-            storeFile file(System.console().readLine("\n\$ Enter keystore path: ")) // getAppKeystoreFile()
-            storePassword new String(System.console().readPassword("\n\$ Enter keystore password: ")) // getAppKeystorePassword()
-            keyAlias System.console().readLine("\n\$ Enter key alias: ") // getAppKey()
-            keyPassword new String(System.console().readPassword("\n\$ Enter key password: ")) // getAppKeyPassword()
+            storeFile  getAppKeystoreFile()
+            storePassword getAppKeystorePassword()
+            keyAlias getAppKey()
+            keyPassword getAppKeyPassword()
         }
     }
 
@@ -153,18 +153,46 @@ def getGitVersion(){
 }
 
 def getAppKeystoreFile() {
-    def filePath = hasProperty('ORG_DROIDPLANNER_ANDROID_KEYSTORE') ? ORG_DROIDPLANNER_ANDROID_KEYSTORE : null
-    return filePath ? file(filePath) : null
+//    def filePath = hasProperty('ORG_DROIDPLANNER_ANDROID_KEYSTORE') ? ORG_DROIDPLANNER_ANDROID_KEYSTORE : null
+//    return filePath ? file(filePath) : null
+
+    def console = System.console()
+    if (console != null){
+        return file(console.readLine("\n\$ Enter keystore path: "))
+    }
+
+    return null
 }
 
 def getAppKeystorePassword(){
-    return hasProperty('ORG_DROIDPLANNER_ANDROID_KEYSTORE_PWD') ? ORG_DROIDPLANNER_ANDROID_KEYSTORE_PWD : ''
+//    return hasProperty('ORG_DROIDPLANNER_ANDROID_KEYSTORE_PWD') ? ORG_DROIDPLANNER_ANDROID_KEYSTORE_PWD : ''
+
+    def console = System.console()
+    if (console != null){
+        return new String(console.readPassword("\n\$ Enter keystore password: "))
+    }
+
+    return ''
 }
 
 def getAppKeyPassword() {
-    return hasProperty('ORG_DROIDPLANNER_ANDROID_KEY_PWD') ? ORG_DROIDPLANNER_ANDROID_KEY_PWD : ''
+//    return hasProperty('ORG_DROIDPLANNER_ANDROID_KEY_PWD') ? ORG_DROIDPLANNER_ANDROID_KEY_PWD : ''
+
+    def console = System.console()
+    if (console != null){
+        return new String(console.readPassword("\n\$ Enter key password: "))
+    }
+
+    return ''
 }
 
 def getAppKey() {
-    return hasProperty('ORG_DROIDPLANNER_ANDROID_KEY_ALIAS') ? ORG_DROIDPLANNER_ANDROID_KEY_ALIAS : ''
+//    return hasProperty('ORG_DROIDPLANNER_ANDROID_KEY_ALIAS') ? ORG_DROIDPLANNER_ANDROID_KEY_ALIAS : ''
+
+    def console = System.console()
+    if (console != null){
+        return new String(console.readLine("\n\$ Enter key alias: "))
+    }
+
+    return ''
 }
