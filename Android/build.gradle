@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
@@ -52,7 +54,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId 'org.droidplanner.android'
+        applicationId 'com.skyborne.gcs.android'
         minSdkVersion 14
         targetSdkVersion 22
         versionCode versionMajor * 100000 + versionMinor * 1000 + versionPatch * 10 + versionBuild
@@ -93,10 +95,16 @@ android {
 
     signingConfigs {
         release {
-            storeFile  getAppKeystoreFile()
-            storePassword getAppKeystorePassword()
-            keyAlias getAppKey()
-            keyPassword getAppKeyPassword()
+            try {
+                storeFile file("../../skyborne.keystore")
+                storePassword COM_SKYBORNE_GCS_ANDROID_KEYSTORE_PWD
+                keyAlias "skyborne"
+                keyPassword COM_SKYBORNE_GCS_ANDROID_KEY_PWD
+            }
+            catch (e) {
+                throw new InvalidUserDataException(
+                        "You should define COM_SKYBORNE_GCS_ANDROID_KEYSTORE_PWD and COM_SKYBORNE_GCS_ANDROID_KEY_PWD in gradle.properties.")
+            }
         }
     }
 
@@ -152,47 +160,8 @@ def getGitVersion(){
     }
 }
 
-def getAppKeystoreFile() {
-//    def filePath = hasProperty('ORG_DROIDPLANNER_ANDROID_KEYSTORE') ? ORG_DROIDPLANNER_ANDROID_KEYSTORE : null
-//    return filePath ? file(filePath) : null
-
-    def console = System.console()
-    if (console != null){
-        return file(console.readLine("\n\$ Enter keystore path: "))
-    }
-
-    return null
-}
-
-def getAppKeystorePassword(){
-//    return hasProperty('ORG_DROIDPLANNER_ANDROID_KEYSTORE_PWD') ? ORG_DROIDPLANNER_ANDROID_KEYSTORE_PWD : ''
-
-    def console = System.console()
-    if (console != null){
-        return new String(console.readPassword("\n\$ Enter keystore password: "))
-    }
-
-    return ''
-}
-
-def getAppKeyPassword() {
-//    return hasProperty('ORG_DROIDPLANNER_ANDROID_KEY_PWD') ? ORG_DROIDPLANNER_ANDROID_KEY_PWD : ''
-
-    def console = System.console()
-    if (console != null){
-        return new String(console.readPassword("\n\$ Enter key password: "))
-    }
-
-    return ''
-}
-
-def getAppKey() {
-//    return hasProperty('ORG_DROIDPLANNER_ANDROID_KEY_ALIAS') ? ORG_DROIDPLANNER_ANDROID_KEY_ALIAS : ''
-
-    def console = System.console()
-    if (console != null){
-        return new String(console.readLine("\n\$ Enter key alias: "))
-    }
-
-    return ''
+def getDate() {
+    def df = new SimpleDateFormat("yyyyMMddHHmmss") //you can change it
+    df.setTimeZone(TimeZone.getTimeZone("UTC"))
+    return df.format(new Date())
 }
