@@ -49,6 +49,12 @@ def versionMinor = 2
 def versionPatch = 0
 def versionBuild = 2 //bump for dogfood builds, public betas, etc.
 
+// version code 供程序用来区别版本号  即 是否需要升级
+// version name 供人看
+//
+// 为了 内部测试时 也能支持自动升级  保留 versionBuild
+// 为 versionName 增加 date 后缀
+
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
@@ -114,7 +120,7 @@ android {
             if (file != null && file.name.endsWith('.apk')) {
                 def buildType = variant.buildType.getName()
                 def versionCode = defaultConfig.versionCode
-                output.outputFile = new File(file.parent, "tower-${buildType}.${versionCode}.apk")
+                output.outputFile = new File(file.parent, "tower-${buildType}.${versionCode}.b${getDate()}.apk")
             }
         }
     }
@@ -122,20 +128,20 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
-            versionNameSuffix ".debug.${versionBuild}"
+            versionNameSuffix ".debug.b${getDate()}"
             resValue "string", "app_title", "Tower Dev"
         }
 
         betaInternal {
             signingConfig signingConfigs.release
             applicationIdSuffix ".beta"
-            versionNameSuffix ".beta.${versionBuild}"
+            versionNameSuffix ".beta.b${getDate()}"
             resValue "string", "app_title", "Tower Beta"
         }
 
         beta {
             signingConfig signingConfigs.release
-            versionNameSuffix ".beta.${versionBuild}"
+            versionNameSuffix ".beta.b${getDate()}"
             resValue "string", "app_title", "Tower"
         }
 
