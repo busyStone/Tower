@@ -130,6 +130,7 @@ android {
             applicationIdSuffix ".debug"
             versionNameSuffix ".debug.b${getDate()}"
             resValue "string", "app_title", "Tower Dev"
+            manifestPlaceholders = [AMAP_API_V2_KEY: "e08b6c1fc13e010e5fcc0abd2b66f2f0"]
         }
 
         betaInternal {
@@ -137,6 +138,7 @@ android {
             applicationIdSuffix ".beta"
             versionNameSuffix ".beta.b${getDate()}"
             resValue "string", "app_title", "Tower Beta"
+            manifestPlaceholders = [AMAP_API_V2_KEY: "6ca4669e0070d2d2bfcec4c419eec2d8"]
         }
 
         beta {

@@ -66,7 +66,8 @@
         <!-- AMap key -->
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="0143e9bb3c5d5a6f93d8cf4b765f4c8c" />
+            android:value="${AMAP_API_V2_KEY}"
+            />
 
         <activity
             android:name=".activities.AccountActivity"
