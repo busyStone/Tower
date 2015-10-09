@@ -39,3 +39,4 @@ Android/gradlew.bat
 Android/gradle/wrapper/gradle-wrapper.jar
 Android/gradle/wrapper/gradle-wrapper.properties
 strings_map_key.xml
+gradle.properties
