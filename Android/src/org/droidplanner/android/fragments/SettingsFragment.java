@@ -16,25 +16,29 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.HitBuilders;
+//import com.google.android.gms.analytics.GoogleAnalytics;
+//import com.google.android.gms.analytics.HitBuilders;
 import com.o3dr.android.client.Drone;
+import com.o3dr.android.client.apis.VehicleApi;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
 import com.o3dr.services.android.lib.drone.attribute.AttributeType;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.property.State;
 import com.o3dr.services.android.lib.drone.property.Type;
+import com.o3dr.services.android.lib.model.AbstractCommandListener;
 
 import org.beyene.sius.unit.length.LengthUnit;
 import org.droidplanner.android.DroidPlannerApp;
 import org.droidplanner.android.R;
 import org.droidplanner.android.activities.helpers.MapPreferencesActivity;
 import org.droidplanner.android.dialogs.ClearBTDialogPreference;
+import org.droidplanner.android.fragments.widget.TowerWidgets;
 import org.droidplanner.android.maps.providers.DPMapProvider;
 import org.droidplanner.android.utils.Utils;
 import org.droidplanner.android.utils.analytics.GAUtils;
@@ -47,6 +51,8 @@ import org.droidplanner.android.utils.unit.systems.UnitSystem;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
+
+import timber.log.Timber;
 
 /**
  * Implements the application settings screen.
@@ -92,6 +98,10 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
      */
     public static final String ACTION_MAP_ROTATION_PREFERENCE_UPDATED = PACKAGE_NAME +
             ".ACTION_MAP_ROTATION_PREFERENCE_UPDATED";
+
+    public static final String ACTION_WIDGET_PREFERENCE_UPDATED = PACKAGE_NAME + ".ACTION_WIDGET_PREFERENCE_UPDATED";
+    public static final String EXTRA_ADD_WIDGET = "extra_add_widget";
+    public static final String EXTRA_WIDGET_PREF_KEY = "extra_widget_pref_key";
 
     private static final IntentFilter intentFilter = new IntentFilter();
 
@@ -181,16 +191,11 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
                         public boolean onPreferenceChange(Preference preference, Object newValue) {
                             // Update the google analytics singleton.
                             final boolean optIn = (Boolean) newValue;
-                            final GoogleAnalytics analytics = GoogleAnalytics.getInstance(context);
-                            analytics.setAppOptOut(!optIn);
+//                            final GoogleAnalytics analytics = GoogleAnalytics.getInstance(context);
+//                            analytics.setAppOptOut(!optIn);
                             return true;
                         }
                     });
-        }
-
-        final Preference storagePref = findPreference(DroidPlannerPrefs.PREF_STORAGE);
-        if (storagePref != null) {
-            storagePref.setSummary(DirectoryPath.getPublicDataPath());
         }
 
         try {
@@ -204,6 +209,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
             Log.e(TAG, "Unable to retrieve version name.", e);
         }
 
+        setupWidgetsPreferences();
         setupMapProviders();
         setupPeriodicControls();
         setupConnectionPreferences();
@@ -213,6 +219,35 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
         setupImminentGroundCollisionWarningPreference();
         setupMapPreferences();
         setupAltitudePreferences();
+    }
+
+    private void setupWidgetsPreferences(){
+        final PreferenceScreen widgetsPref = (PreferenceScreen) findPreference(DroidPlannerPrefs.PREF_TOWER_WIDGETS);
+        if(widgetsPref != null){
+            final Activity activity = getActivity();
+            final Preference.OnPreferenceChangeListener widgetPrefChangeListener = new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    final boolean addWidget = (boolean) newValue;
+                    lbm.sendBroadcast(new Intent(ACTION_WIDGET_PREFERENCE_UPDATED)
+                            .putExtra(EXTRA_ADD_WIDGET, addWidget)
+                            .putExtra(EXTRA_WIDGET_PREF_KEY, preference.getKey()));
+                    return true;
+                }
+            };
+
+            final TowerWidgets[] widgets = TowerWidgets.values();
+            for(TowerWidgets widget: widgets){
+                final CheckBoxPreference widgetPref = new CheckBoxPreference(activity);
+                widgetPref.setKey(widget.getPrefKey());
+                widgetPref.setTitle(widget.getLabelResId());
+                widgetPref.setSummary(widget.getDescriptionResId());
+                widgetPref.setChecked(dpPrefs.isWidgetEnabled(widget));
+                widgetPref.setOnPreferenceChangeListener(widgetPrefChangeListener);
+
+                widgetsPref.addPreference(widgetPref);
+            }
+        }
     }
 
     private void setupMapProviders(){
@@ -284,6 +319,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
                 }
             });
         }
+
         final CheckBoxPreference killSwitch = (CheckBoxPreference) findPreference(DroidPlannerPrefs.PREF_ENABLE_KILL_SWITCH);
         if(killSwitch != null) {
             killSwitch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -399,9 +435,10 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
         setupAltitudePreferenceHelper(DroidPlannerPrefs.PREF_ALT_DEFAULT_VALUE, dpPrefs.getDefaultAltitude());
     }
 
-    private Context getContext(){
+    @Override
+    public Context getContext() {
         final Activity activity = getActivity();
-        if(activity == null)
+        if (activity == null)
             return null;
 
         return activity.getApplicationContext();
@@ -596,19 +633,19 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
         final Preference firmwareVersionPref = findPreference(DroidPlannerPrefs.PREF_FIRMWARE_VERSION);
         if (firmwareVersionPref != null) {
-            final HitBuilders.EventBuilder firmwareEvent = new HitBuilders.EventBuilder()
-                    .setCategory(GAUtils.Category.MAVLINK_CONNECTION);
+//            final HitBuilders.EventBuilder firmwareEvent = new HitBuilders.EventBuilder()
+//                    .setCategory(GAUtils.Category.MAVLINK_CONNECTION);
 
             if (firmwareVersion == null) {
                 firmwareVersionPref.setSummary(R.string.empty_content);
-                firmwareEvent.setAction("Firmware version unset");
+//                firmwareEvent.setAction("Firmware version unset");
             } else {
                 firmwareVersionPref.setSummary(firmwareVersion);
-                firmwareEvent.setAction("Firmware version set").setLabel(firmwareVersion);
+//                firmwareEvent.setAction("Firmware version set").setLabel(firmwareVersion);
             }
 
             // Record the firmware version.
-            GAUtils.sendEvent(firmwareEvent);
+//            GAUtils.sendEvent(firmwareEvent);
         }
     }
 
@@ -710,7 +747,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
     @Override
     public void onApiConnected() {
         Drone drone = dpApp.getDrone();
-        State droneState = drone.getAttribute(AttributeType.STATE);
         Type droneType = drone.getAttribute(AttributeType.TYPE);
 
         updateFirmwareVersionPreference(droneType);

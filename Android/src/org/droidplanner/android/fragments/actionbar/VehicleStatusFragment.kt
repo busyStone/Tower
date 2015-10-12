@@ -41,7 +41,7 @@ public class VehicleStatusFragment : ApiListenerFragment() {
 
     private val receiver = object : BroadcastReceiver(){
         override fun onReceive(context: Context, intent: Intent) {
-            when(intent.getAction()){
+            when(intent.action){
                 AttributeEvent.STATE_CONNECTED -> updateAllStatus()
 
                 AttributeEvent.STATE_DISCONNECTED -> updateAllStatus()
@@ -55,29 +55,36 @@ public class VehicleStatusFragment : ApiListenerFragment() {
         }
     }
 
-    private val connectedIcon by Delegates.lazy {
-        getView()?.findViewById(R.id.status_vehicle_connection) as ImageView?
+    private var title: CharSequence = ""
+
+    private val connectedIcon by lazy(LazyThreadSafetyMode.NONE) {
+        view?.findViewById(R.id.status_vehicle_connection) as ImageView?
     }
 
-    private val batteryIcon by Delegates.lazy {
-        getView()?.findViewById(R.id.status_vehicle_battery) as ImageView?
+    private val batteryIcon by lazy(LazyThreadSafetyMode.NONE) {
+        view?.findViewById(R.id.status_vehicle_battery) as ImageView?
     }
 
-    private val titleView by Delegates.lazy {
-        getView()?.findViewById(R.id.status_actionbar_title) as TextView?
-    }
+    private var titleView: TextView? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View?{
         return inflater?.inflate(R.layout.fragment_vehicle_status, container, false)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?){
+        super.onViewCreated(view, savedInstanceState)
+
+        titleView = view.findViewById(R.id.status_actionbar_title) as TextView?
+        titleView?.text = title
+    }
+
     override fun onApiConnected() {
         updateAllStatus()
-        getBroadcastManager().registerReceiver(receiver, filter)
+        broadcastManager.registerReceiver(receiver, filter)
     }
 
     override fun onApiDisconnected() {
-        getBroadcastManager().unregisterReceiver(receiver)
+        broadcastManager.unregisterReceiver(receiver)
         updateAllStatus()
     }
 
@@ -87,13 +94,13 @@ public class VehicleStatusFragment : ApiListenerFragment() {
     }
 
     private fun updateConnectionStatus() {
-        val drone = getDrone()
+        val drone = drone
         connectedIcon?.setImageLevel(
-                if(drone == null || !drone.isConnected())
+                if(drone == null || !drone.isConnected)
                     0
                 else {
                     val state: State = drone.getAttribute(AttributeType.STATE)
-                    if (state.isTelemetryLive())
+                    if (state.isTelemetryLive)
                         2
                     else
                         1
@@ -101,23 +108,20 @@ public class VehicleStatusFragment : ApiListenerFragment() {
         )
     }
 
-    fun setTitle(titleResId: Int){
-        titleView?.setText(titleResId)
-    }
-
     fun setTitle(title: CharSequence){
-        titleView?.setText(title)
+        this.title = title
+        titleView?.text = title
     }
 
     private fun updateBatteryStatus() {
-        val drone = getDrone()
+        val drone = drone
         batteryIcon?.setImageLevel(
-                if(drone == null || !drone.isConnected()){
+                if(drone == null || !drone.isConnected){
                     0
                 }
                 else{
                     val battery: Battery = drone.getAttribute(AttributeType.BATTERY)
-                    val battRemain = battery.getBatteryRemain()
+                    val battRemain = battery.batteryRemain
 
                     if (battRemain >= 100) {
                         8

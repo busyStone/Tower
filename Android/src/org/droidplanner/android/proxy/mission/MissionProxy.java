@@ -8,7 +8,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.CircularArray;
 import android.util.Pair;
 
-import com.google.android.gms.analytics.HitBuilders;
+//import com.google.android.gms.analytics.HitBuilders;
 import com.o3dr.android.client.Drone;
 import com.o3dr.services.android.lib.coordinate.LatLong;
 import com.o3dr.services.android.lib.coordinate.LatLongAlt;
@@ -30,9 +30,13 @@ import com.o3dr.services.android.lib.drone.mission.item.spatial.SplineWaypoint;
 import com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint;
 import com.o3dr.services.android.lib.util.MathUtils;
 
+import org.droidplanner.android.DroidPlannerApp;
 import org.droidplanner.android.maps.DPMap;
 import org.droidplanner.android.maps.MarkerInfo;
 import org.droidplanner.android.proxy.mission.item.MissionItemProxy;
+import org.droidplanner.android.proxy.mission.item.markers.MissionItemMarkerInfo;
+import org.droidplanner.android.proxy.mission.item.markers.PolygonMarkerInfo;
+import org.droidplanner.android.proxy.mission.item.markers.SurveyMarkerInfoProvider;
 import org.droidplanner.android.utils.Utils;
 import org.droidplanner.android.utils.analytics.GAUtils;
 import org.droidplanner.android.utils.collection.CircularQueue;
@@ -402,6 +406,49 @@ public class MissionProxy implements DPMap.PathSource {
     }
 
     /**
+     * @return The order of the first waypoint.
+     */
+    public int getFirstWaypoint(){
+        final List<MarkerInfo> markerInfos = getMarkersInfos();
+
+        if(!markerInfos.isEmpty()) {
+            final MarkerInfo markerInfo = markerInfos.get(0);
+            if(markerInfo instanceof MissionItemMarkerInfo){
+                return getOrder(((MissionItemMarkerInfo)markerInfo).getMarkerOrigin());
+            }
+            else if(markerInfo instanceof SurveyMarkerInfoProvider){
+                return getOrder(((SurveyMarkerInfoProvider)markerInfo).getMarkerOrigin());
+            }
+            else if(markerInfo instanceof PolygonMarkerInfo){
+                return getOrder(((PolygonMarkerInfo)markerInfo).getMarkerOrigin());
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * @return The order for the last waypoint.
+     */
+    public int getLastWaypoint(){
+        final List<MarkerInfo> markerInfos = getMarkersInfos();
+
+        if(!markerInfos.isEmpty()) {
+            final MarkerInfo markerInfo = markerInfos.get(markerInfos.size() - 1);
+            if(markerInfo instanceof MissionItemMarkerInfo){
+                return getOrder(((MissionItemMarkerInfo)markerInfo).getMarkerOrigin());
+            }
+            else if(markerInfo instanceof SurveyMarkerInfoProvider){
+                return getOrder(((SurveyMarkerInfoProvider)markerInfo).getMarkerOrigin());
+            }
+            else if(markerInfo instanceof PolygonMarkerInfo){
+                return getOrder(((PolygonMarkerInfo)markerInfo).getMarkerOrigin());
+            }
+        }
+        return 0;
+    }
+
+    /**
      * Updates a mission item render
      *
      * @param oldItem mission item render to update
@@ -732,19 +779,19 @@ public class MissionProxy implements DPMap.PathSource {
 
         missionItemsList += "]";
 
-        HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
-                .setCategory(GAUtils.Category.MISSION_PLANNING)
-                .setAction("Mission sent to drone")
-                .setLabel("Mission items: " + missionItemsList);
-        GAUtils.sendEvent(eventBuilder);
-
-        //Send an event for the created mission
-        eventBuilder = new HitBuilders.EventBuilder()
-                .setCategory(GAUtils.Category.MISSION_PLANNING)
-                .setAction("Mission sent to drone")
-                .setLabel("Mission items count")
-                .setValue(missionItemsCount);
-        GAUtils.sendEvent(eventBuilder);
+//        HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
+//                .setCategory(GAUtils.Category.MISSION_PLANNING)
+//                .setAction("Mission sent to drone")
+//                .setLabel("Mission items: " + missionItemsList);
+//        GAUtils.sendEvent(eventBuilder);
+//
+//        //Send an event for the created mission
+//        eventBuilder = new HitBuilders.EventBuilder()
+//                .setCategory(GAUtils.Category.MISSION_PLANNING)
+//                .setAction("Mission sent to drone")
+//                .setLabel("Mission items count")
+//                .setValue(missionItemsCount);
+//        GAUtils.sendEvent(eventBuilder);
     }
 
     public double getMissionLength() {

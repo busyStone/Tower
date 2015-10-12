@@ -1,11 +1,14 @@
 package org.droidplanner.android.activities.helpers;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
@@ -26,6 +29,7 @@ import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
 import com.o3dr.services.android.lib.drone.attribute.error.CommandExecutionError;
 import com.o3dr.services.android.lib.model.SimpleCommandListener;
 
+import org.droidplanner.android.AppService;
 import org.droidplanner.android.DroidPlannerApp;
 import org.droidplanner.android.R;
 import org.droidplanner.android.dialogs.SlideToUnlockDialog;
@@ -42,7 +46,10 @@ import org.droidplanner.android.utils.unit.systems.UnitSystem;
 /**
  * Parent class for the app activity classes.
  */
-public abstract class SuperUI extends AppCompatActivity implements DroidPlannerApp.ApiListener {
+public abstract class SuperUI extends AppCompatActivity implements DroidPlannerApp.ApiListener,
+        SupportYesNoDialog.Listener, ServiceConnection {
+
+    private static final String MISSION_UPLOAD_CHECK_DIALOG_TAG = "Mission Upload check.";
 
     private static final IntentFilter superIntentFilter = new IntentFilter();
 
@@ -118,18 +125,28 @@ public abstract class SuperUI extends AppCompatActivity implements DroidPlannerA
         addToolbarFragment();
     }
 
-    protected void setToolbarTitle(CharSequence title){
+    public void setToolbarTitle(CharSequence title){
         if(statusFragment == null)
             return;
 
         statusFragment.setTitle(title);
     }
 
-    protected void setToolbarTitle(int titleResId){
+    public void setToolbarTitle(int titleResId){
         if(statusFragment == null)
             return;
 
-        statusFragment.setTitle(titleResId);
+        statusFragment.setTitle(getString(titleResId));
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name){
+
     }
 
     protected void addToolbarFragment(){
@@ -171,11 +188,14 @@ public abstract class SuperUI extends AppCompatActivity implements DroidPlannerA
 
         screenOrientation.unlock();
         Utils.updateUILanguage(context);
+
+        bindService(new Intent(context, AppService.class), this, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        unbindService(this);
         lbm = null;
     }
 
@@ -202,12 +222,12 @@ public abstract class SuperUI extends AppCompatActivity implements DroidPlannerA
         onDroneDisconnected();
     }
 
-    private void onDroneConnected() {
+    protected void onDroneConnected() {
         invalidateOptionsMenu();
         screenOrientation.requestLock();
     }
 
-    private void onDroneDisconnected() {
+    protected void onDroneDisconnected() {
         invalidateOptionsMenu();
         screenOrientation.unlock();
     }
@@ -218,21 +238,12 @@ public abstract class SuperUI extends AppCompatActivity implements DroidPlannerA
 
         unitSystem = UnitManager.getUnitSystem(getApplicationContext());
         dpApp.addApiListener(this);
-        maxVolumeIfEnabled();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         dpApp.removeApiListener(this);
-    }
-
-    private void maxVolumeIfEnabled() {
-        if (mAppPrefs.maxVolumeOnStart()) {
-            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
-                    audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
-        }
     }
 
     @Override
@@ -293,6 +304,31 @@ public abstract class SuperUI extends AppCompatActivity implements DroidPlannerA
     }
 
     @Override
+    public void onDialogYes(String dialogTag) {
+        final Drone drone = dpApp.getDrone();
+        final MissionProxy missionProxy = dpApp.getMissionProxy();
+
+        switch(dialogTag){
+            case MISSION_UPLOAD_CHECK_DIALOG_TAG:
+                missionProxy.addTakeOffAndRTL();
+                missionProxy.sendMissionToAPM(drone);
+                break;
+        }
+    }
+
+    @Override
+    public void onDialogNo(String dialogTag) {
+        final Drone drone = dpApp.getDrone();
+        final MissionProxy missionProxy = dpApp.getMissionProxy();
+
+        switch(dialogTag){
+            case MISSION_UPLOAD_CHECK_DIALOG_TAG:
+                missionProxy.sendMissionToAPM(drone);
+                break;
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         final Drone dpApi = dpApp.getDrone();
 
@@ -307,24 +343,15 @@ public abstract class SuperUI extends AppCompatActivity implements DroidPlannerA
                     missionProxy.sendMissionToAPM(dpApi);
                 } else {
                     SupportYesNoWithPrefsDialog dialog = SupportYesNoWithPrefsDialog.newInstance(
-                            getApplicationContext(), "Mission Upload",
-                            "Do you want to append a Takeoff and RTL to your " + "mission?", "Ok",
-                            "Skip", new SupportYesNoDialog.Listener() {
-
-                                @Override
-                                public void onYes() {
-                                    missionProxy.addTakeOffAndRTL();
-                                    missionProxy.sendMissionToAPM(dpApi);
-                                }
-
-                                @Override
-                                public void onNo() {
-                                    missionProxy.sendMissionToAPM(dpApi);
-                                }
-                            }, DroidPlannerPrefs.PREF_AUTO_INSERT_MISSION_TAKEOFF_RTL_LAND);
+                            getApplicationContext(), MISSION_UPLOAD_CHECK_DIALOG_TAG,
+                            getString(R.string.mission_upload_title),
+                            getString(R.string.mission_upload_message),
+                            getString(android.R.string.ok),
+                            getString(R.string.label_skip),
+                            DroidPlannerPrefs.PREF_AUTO_INSERT_MISSION_TAKEOFF_RTL_LAND, this);
 
                     if (dialog != null) {
-                        dialog.show(getSupportFragmentManager(), "Mission Upload check.");
+                        dialog.show(getSupportFragmentManager(), MISSION_UPLOAD_CHECK_DIALOG_TAG);
                     }
                 }
                 return true;

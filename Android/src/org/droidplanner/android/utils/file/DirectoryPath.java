@@ -56,4 +56,11 @@ public class DirectoryPath {
 	public static String getLogCatPath(Context context) {
 		return getPrivateDataPath(context) + "/LogCat/";
 	}
+
+	/**
+	 * Storage folder for stacktraces
+	 */
+	public static String getCrashLogPath(Context context) {
+		return getPrivateDataPath(context) + "/crash_log/";
+	}
 }

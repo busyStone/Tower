@@ -27,10 +27,10 @@ import org.droidplanner.android.proxy.mission.MissionProxy;
 import org.droidplanner.android.proxy.mission.item.adapters.CamerasAdapter;
 import org.droidplanner.android.utils.unit.providers.area.AreaUnitProvider;
 import org.droidplanner.android.utils.unit.providers.length.LengthUnitProvider;
-import org.droidplanner.android.widgets.spinnerWheel.CardWheelHorizontalView;
-import org.droidplanner.android.widgets.spinnerWheel.adapters.LengthWheelAdapter;
-import org.droidplanner.android.widgets.spinnerWheel.adapters.NumericWheelAdapter;
-import org.droidplanner.android.widgets.spinners.SpinnerSelfSelect;
+import org.droidplanner.android.view.spinnerWheel.CardWheelHorizontalView;
+import org.droidplanner.android.view.spinnerWheel.adapters.LengthWheelAdapter;
+import org.droidplanner.android.view.spinnerWheel.adapters.NumericWheelAdapter;
+import org.droidplanner.android.view.spinners.SpinnerSelfSelect;
 
 import java.util.Collections;
 import java.util.List;
@@ -127,7 +127,7 @@ public class MissionSurveyFragment<T extends Survey> extends MissionDetailFragme
         final LengthUnitProvider lengthUP = getLengthUnitProvider();
         mAltitudePicker = (CardWheelHorizontalView) view.findViewById(R.id.altitudePicker);
         mAltitudePicker.setViewAdapter(new LengthWheelAdapter(context, R.layout.wheel_text_centered,
-                lengthUP.boxBaseValueToTarget(0), lengthUP.boxBaseValueToTarget(200)));
+                lengthUP.boxBaseValueToTarget(MIN_ALTITUDE), lengthUP.boxBaseValueToTarget(MAX_ALTITUDE)));
 
         areaTextView = (TextView) view.findViewById(id.areaTextView);
         distanceBetweenLinesTextView = (TextView) view.findViewById(id.distanceBetweenLinesTextView);

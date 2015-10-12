@@ -29,9 +29,11 @@ import org.droidplanner.android.R;
 import org.droidplanner.android.fragments.DroneMap;
 import org.droidplanner.android.graphic.map.GuidedScanROIMarkerInfo;
 import org.droidplanner.android.maps.MarkerInfo;
+import org.droidplanner.android.utils.Utils;
+import org.droidplanner.android.utils.prefs.DroidPlannerPrefs;
 import org.droidplanner.android.utils.unit.providers.length.LengthUnitProvider;
-import org.droidplanner.android.widgets.spinnerWheel.CardWheelHorizontalView;
-import org.droidplanner.android.widgets.spinnerWheel.adapters.LengthWheelAdapter;
+import org.droidplanner.android.view.spinnerWheel.CardWheelHorizontalView;
+import org.droidplanner.android.view.spinnerWheel.adapters.LengthWheelAdapter;
 
 public class ModeFollowFragment extends ModeGuidedFragment implements OnItemSelectedListener, DroneMap.MapMarkerProvider {
 
@@ -86,15 +88,17 @@ public class ModeFollowFragment extends ModeGuidedFragment implements OnItemSele
         final Context context = getContext();
         final LengthUnitProvider lengthUP = getLengthUnitProvider();
 
+        final DroidPlannerPrefs dpPrefs = getAppPrefs();
+
         final LengthWheelAdapter radiusAdapter = new LengthWheelAdapter(context, R.layout.wheel_text_centered,
-                lengthUP.boxBaseValueToTarget(2), lengthUP.boxBaseValueToTarget(200));
+                lengthUP.boxBaseValueToTarget(Utils.MIN_DISTANCE), lengthUP.boxBaseValueToTarget(Utils.MAX_DISTANCE));
 
         mRadiusWheel = (CardWheelHorizontalView<LengthUnit>) parentView.findViewById(R.id.radius_spinner);
         mRadiusWheel.setViewAdapter(radiusAdapter);
         mRadiusWheel.addScrollListener(this);
 
         final LengthWheelAdapter roiHeightAdapter = new LengthWheelAdapter(context, R.layout.wheel_text_centered,
-                lengthUP.boxBaseValueToTarget(0), lengthUP.boxBaseValueToTarget(200));
+                lengthUP.boxBaseValueToTarget(dpPrefs.getMinAltitude()), lengthUP.boxBaseValueToTarget(dpPrefs.getMaxAltitude()));
 
         roiHeightWheel = (CardWheelHorizontalView<LengthUnit>) parentView.findViewById(R.id.roi_height_spinner);
         roiHeightWheel.setViewAdapter(roiHeightAdapter);
@@ -126,7 +130,7 @@ public class ModeFollowFragment extends ModeGuidedFragment implements OnItemSele
             onFollowTypeUpdate(followType, followState.getParams());
         }
 
-        parentActivity.addMapMarkerProvider(this);
+        parent.addMapMarkerProvider(this);
         getBroadcastManager().registerReceiver(eventReceiver, eventFilter);
     }
 
@@ -184,7 +188,7 @@ public class ModeFollowFragment extends ModeGuidedFragment implements OnItemSele
     @Override
     public void onApiDisconnected() {
         super.onApiDisconnected();
-        parentActivity.removeMapMarkerProvider(this);
+        parent.removeMapMarkerProvider(this);
         getBroadcastManager().unregisterReceiver(eventReceiver);
     }
 

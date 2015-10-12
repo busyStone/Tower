@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
+//import com.google.android.gms.analytics.HitBuilders;
 import com.o3dr.android.client.Drone;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
 import com.o3dr.services.android.lib.drone.attribute.AttributeType;
@@ -98,11 +98,11 @@ public class PlaneFlightControlFragment extends BaseFlightControlFragment {
                         }
 
                         if (eventLabel != null) {
-                            HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
-                                    .setCategory(GAUtils.Category.FLIGHT)
-                                    .setAction(ACTION_FLIGHT_ACTION_BUTTON)
-                                    .setLabel(eventLabel);
-                            GAUtils.sendEvent(eventBuilder);
+//                            HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
+//                                    .setCategory(GAUtils.Category.FLIGHT)
+//                                    .setAction(ACTION_FLIGHT_ACTION_BUTTON)
+//                                    .setLabel(eventLabel);
+//                            GAUtils.sendEvent(eventBuilder);
 
                             Toast.makeText(getActivity(), eventLabel, Toast.LENGTH_SHORT).show();
                         }
@@ -300,8 +300,8 @@ public class PlaneFlightControlFragment extends BaseFlightControlFragment {
     @Override
     public void onClick(View v) {
         final Drone drone = getDrone();
-        HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
-                .setCategory(GAUtils.Category.FLIGHT);
+//        HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
+//                .setCategory(GAUtils.Category.FLIGHT);
 
         switch (v.getId()) {
             case R.id.mc_connectBtn:
@@ -310,18 +310,18 @@ public class PlaneFlightControlFragment extends BaseFlightControlFragment {
 
             case R.id.mc_armBtn:
                 getArmingConfirmation();
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Arm");
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Arm");
                 break;
 
             case R.id.mc_disarmBtn:
                 getDrone().arm(false);
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Disarm");
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Disarm");
                 break;
 
             case R.id.mc_homeBtn:
                 drone.changeVehicleMode(VehicleMode.PLANE_RTL);
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON)
-                        .setLabel(VehicleMode.PLANE_RTL.getLabel());
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON)
+//                        .setLabel(VehicleMode.PLANE_RTL.getLabel());
                 break;
 
             case R.id.mc_pause: {
@@ -331,14 +331,14 @@ public class PlaneFlightControlFragment extends BaseFlightControlFragment {
                 }
 
                 drone.pauseAtCurrentLocation();
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Pause");
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Pause");
                 break;
             }
 
             case R.id.mc_TakeoffInAutoBtn:
             case R.id.mc_autoBtn:
                 drone.changeVehicleMode(VehicleMode.PLANE_AUTO);
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.PLANE_AUTO.getLabel());
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.PLANE_AUTO.getLabel());
                 break;
 
             case R.id.mc_follow: {
@@ -347,13 +347,13 @@ public class PlaneFlightControlFragment extends BaseFlightControlFragment {
             }
 
             default:
-                eventBuilder = null;
+//                eventBuilder = null;
                 break;
         }
 
-        if (eventBuilder != null) {
-            GAUtils.sendEvent(eventBuilder);
-        }
+//        if (eventBuilder != null) {
+//            GAUtils.sendEvent(eventBuilder);
+//        }
     }
 
     @Override

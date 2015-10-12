@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.droidplanner.android" >
+    package="org.droidplanner.android"
+    android:installLocation="auto">
 
     <supports-screens android:requiresSmallestWidthDp="320" />
 
@@ -13,6 +14,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
@@ -165,6 +167,9 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:noHistory="true"/>
+
+        <service android:name=".AppService" />
+
     </application>
 
 </manifest>
