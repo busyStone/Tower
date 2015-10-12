@@ -69,6 +69,19 @@
             android:value="${AMAP_API_V2_KEY}"
             />
 
+        <activity android:name=".activities.SplashActivity"
+            android:noHistory="true"
+            android:theme="@style/Theme.Splash"
+            android:screenOrientation="portrait">
+
+            <!-- Launcher Intent -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".activities.AccountActivity"
             android:label="@string/account_label"
@@ -78,11 +91,9 @@
             android:launchMode="singleTask"
             android:theme="@style/CustomActionBarTheme.Transparent" >
 
-            <!-- Launcher Intent -->
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
