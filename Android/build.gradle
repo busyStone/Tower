@@ -59,12 +59,14 @@ android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
+    def appTitle = "SkyBorne"
+
     defaultConfig {
         applicationId 'com.skyborne.gcs.android'
         minSdkVersion 14
         targetSdkVersion 22
         versionCode versionMajor * 100000 + versionMinor * 1000 + versionPatch * 10 + versionBuild
-        versionName "Tower-v${versionMajor}.${versionMinor}.${versionPatch}"
+        versionName "${appTitle}-v${versionMajor}.${versionMinor}.${versionPatch}"
     }
 
     compileOptions {
@@ -122,7 +124,7 @@ android {
             if (file != null && file.name.endsWith('.apk')) {
                 def buildType = variant.buildType.getName()
                 def versionCode = defaultConfig.versionCode
-                output.outputFile = new File(file.parent, "tower-${buildType}.${versionCode}.apk")
+                output.outputFile = new File(file.parent, "${appTitle}-${buildType}.${versionCode}.apk")
             }
         }
     }
@@ -131,7 +133,7 @@ android {
         debug {
             applicationIdSuffix ".debug"
             versionNameSuffix ".debug"
-            resValue "string", "app_title", "Tower Dev"
+            resValue "string", "app_title", "${appTitle} Dev"
             manifestPlaceholders = [AMAP_API_V2_KEY: "e08b6c1fc13e010e5fcc0abd2b66f2f0"]
         }
 
@@ -139,19 +141,19 @@ android {
             signingConfig signingConfigs.release
             applicationIdSuffix ".beta"
             versionNameSuffix ".beta.b${versionBuildTime}"
-            resValue "string", "app_title", "Tower Beta"
+            resValue "string", "app_title", "${appTitle} Beta"
             manifestPlaceholders = [AMAP_API_V2_KEY: "6ca4669e0070d2d2bfcec4c419eec2d8"]
         }
 
         beta {
             signingConfig signingConfigs.release
             versionNameSuffix ".beta.b${versionBuildTime}"
-            resValue "string", "app_title", "Tower"
+            resValue "string", "app_title", "${appTitle}"
         }
 
         release {
             signingConfig signingConfigs.release
-            resValue "string", "app_title", "Tower"
+            resValue "string", "app_title", "${appTitle}"
         }
     }
 }
