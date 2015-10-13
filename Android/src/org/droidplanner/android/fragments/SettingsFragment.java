@@ -238,6 +238,10 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
             final TowerWidgets[] widgets = TowerWidgets.values();
             for(TowerWidgets widget: widgets){
+                if (widget.getPrefKey() == TowerWidgets.SOLO_VIDEO.getPrefKey()){
+                    continue;
+                }
+
                 final CheckBoxPreference widgetPref = new CheckBoxPreference(activity);
                 widgetPref.setKey(widget.getPrefKey());
                 widgetPref.setTitle(widget.getLabelResId());
