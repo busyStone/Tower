@@ -74,7 +74,7 @@
         <activity android:name=".activities.SplashActivity"
             android:noHistory="true"
             android:theme="@style/Theme.Splash"
-            android:screenOrientation="portrait">
+            android:screenOrientation="landscape">
 
             <!-- Launcher Intent -->
             <intent-filter>
