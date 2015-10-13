@@ -372,6 +372,7 @@ public class FlightDataFragment extends ApiListenerFragment implements SlidingDr
             showErrorDialog = true;
             DroidPlannerApp.IsGMSHadChecked = true;
         }
+
         setupMapFragment(showErrorDialog);
         updateMapLocationButtons(getAppPrefs().getAutoPanMode());
     }

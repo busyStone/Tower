@@ -135,20 +135,6 @@ public class FlightActivity extends DrawerNavigationUI implements SlidingUpPanel
         updateActionDrawerBottomMargin(viewLocs[0] + flightActionBar.getWidth(), bottomMargin);
     }
 
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//
-//        // 仅提示一次
-//        boolean showErrorDialog = false;
-//        if (!dpApp.IsGMSHadChecked) {
-//            showErrorDialog = true;
-//            dpApp.IsGMSHadChecked = true;
-//        }
-//
-//        setupMapFragment(showErrorDialog);
-//    }
-
     public void onPanelExpanded(View view) {
         //Update the bottom margin for the action drawer
         final View flightActionBar = ((ViewGroup)view).getChildAt(0);
