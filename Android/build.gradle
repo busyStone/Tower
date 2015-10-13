@@ -64,7 +64,7 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
 
-    def appTitle = "SkyBorne"
+    def appTitle = "Tower"
 
     defaultConfig {
         applicationId 'com.skyborne.gcs.android'
