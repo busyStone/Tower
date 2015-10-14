@@ -12,7 +12,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
+//import com.crashlytics.android.Crashlytics;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.VehicleApi;
@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.fabric.sdk.android.Fabric;
+//import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 public class DroidPlannerApp extends Application implements DroneListener, TowerListener {
@@ -166,7 +166,7 @@ public class DroidPlannerApp extends Application implements DroneListener, Tower
         GAUtils.startNewSession(context);
 
         if(BuildConfig.ENABLE_CRASHLYTICS) {
-            Fabric.with(context, new Crashlytics());
+//            Fabric.with(context, new Crashlytics());
         }
 
         if (BuildConfig.WRITE_LOG_FILE) {
