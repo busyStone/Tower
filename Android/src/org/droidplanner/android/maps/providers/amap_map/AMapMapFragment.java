@@ -866,12 +866,11 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     // ---------------------------------------------------------------------------------------------
     // SupportMapFragment
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup viewGroup, Bundle bundle){
-        setHasOptionsMenu(true);
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
 
-        final View view = super.onCreateView(inflater,viewGroup,bundle);
+        setHasOptionsMenu(true);
 
         mAppPrefs = new DroidPlannerPrefs(getActivity().getApplicationContext());
 
@@ -884,8 +883,6 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         try{
             MapsInitializer.initialize(getActivity().getBaseContext());
         }catch (RemoteException e){}
-
-        return view;
     }
 
     @Override
