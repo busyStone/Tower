@@ -53,7 +53,7 @@ bugly {
 def versionMajor = 3
 def versionMinor = 2
 def versionPatch = 0
-def versionBuild = 7 //bump for dogfood builds, public betas, etc.
+def versionBuild = 8 //bump for dogfood builds, public betas, etc.
 
 //Logging levels
 def logLevelVerbose = 2;
@@ -143,11 +143,7 @@ android {
             if (file != null && file.name.endsWith('.apk')) {
                 def buildType = variant.buildType.getName()
                 def versionCode = defaultConfig.versionCode
-                if (buildType != "debug") {
-                    output.outputFile = new File(file.parent, "${appTitle}-${buildType}.${versionCode}.b${versionBuildTime}.apk")
-                }else {
-                    output.outputFile = new File(file.parent, "${appTitle}-${buildType}.${versionCode}.apk")
-                }
+                output.outputFile = new File(file.parent, "${appTitle}-${buildType}.${versionCode}.apk")
             }
         }
     }
