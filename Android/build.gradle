@@ -143,7 +143,11 @@ android {
             if (file != null && file.name.endsWith('.apk')) {
                 def buildType = variant.buildType.getName()
                 def versionCode = defaultConfig.versionCode
-                output.outputFile = new File(file.parent, "${appTitle}-${buildType}.${versionCode}.apk")
+                if (buildType != "debug") {
+                    output.outputFile = new File(file.parent, "${appTitle}-${buildType}.${versionCode}.b${versionBuildTime}.apk")
+                }else {
+                    output.outputFile = new File(file.parent, "${appTitle}-${buildType}.${versionCode}.apk")
+                }
             }
         }
     }
