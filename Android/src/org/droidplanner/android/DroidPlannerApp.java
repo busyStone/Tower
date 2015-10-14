@@ -24,6 +24,7 @@ import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.connection.DroneSharePrefs;
 import com.o3dr.services.android.lib.model.AbstractCommandListener;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import org.droidplanner.android.activities.helpers.BluetoothDevicesActivity;
 import org.droidplanner.android.maps.providers.google_map.tiles.mapbox.offline.MapDownloader;
@@ -167,6 +168,7 @@ public class DroidPlannerApp extends Application implements DroneListener, Tower
 
         if(BuildConfig.ENABLE_CRASHLYTICS) {
 //            Fabric.with(context, new Crashlytics());
+            CrashReport.initCrashReport(context, "900010528", false);
         }
 
         if (BuildConfig.WRITE_LOG_FILE) {
