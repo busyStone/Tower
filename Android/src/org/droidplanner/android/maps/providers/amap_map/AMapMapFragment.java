@@ -87,6 +87,8 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     private static final IntentFilter eventFilter = new IntentFilter();
 
+    private AMap mAmap;
+
     static {
         eventFilter.addAction(AttributeEvent.GPS_POSITION);
         eventFilter.addAction(SettingsFragment.ACTION_MAP_ROTATION_PREFERENCE_UPDATED);
@@ -98,15 +100,14 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     private void updateCamera(final LatLong coord) {
         if (coord != null) {
-            getMap().animateCamera(CameraUpdateFactory.newLatLngZoom(
+            getAMap().animateCamera(CameraUpdateFactory.newLatLngZoom(
                     DroneHelper.CoordToAMapLatLang(coord),
-                    getMap().getCameraPosition().zoom));
+                    getAMap().getCameraPosition().zoom));
         }
     }
 
-    private void setupMap(){
+    private void setupMap(AMap map){
 
-        AMap map = getMap();
         setupMapUI(map);
         setupMapListeners(map);
 
@@ -237,7 +238,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(markerIcon));
         }
 
-        Marker marker = getMap().addMarker(markerOptions);
+        Marker marker = getAMap().addMarker(markerOptions);
         mBiMarkersMap.put(markerInfo, marker);
     }
 
@@ -292,6 +293,14 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         }
     }
 
+    private AMap getAMap(){
+        if (mAmap == null){
+            mAmap = getMap();
+        }
+
+        return mAmap;
+    }
+
     // ---------------------------------------------------------------------------------------------
     // Broadcast Receiver
     private final BroadcastReceiver eventReceiver = new BroadcastReceiver() {
@@ -314,6 +323,10 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                     }
                     break;
                 case SettingsFragment.ACTION_MAP_ROTATION_PREFERENCE_UPDATED:
+                    if (mAmap != null){
+                        setupMapUI(mAmap);
+                    }
+
                     break;
             }
         }
@@ -379,7 +392,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                     .visible(true)
                     .anchor(0.5f, 0.5f)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.user_location));
-            userMarker = getMap().addMarker(options);
+            userMarker = getAMap().addMarker(options);
         }else{
             userMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude()));
         }
@@ -387,7 +400,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         if (mPanMode.get() == AutoPanMode.USER) {
             Timber.d("User location changed.");
             updateCamera(DroneHelper.LocationToCoord(aMapLocation),
-                    (int) getMap().getCameraPosition().zoom);
+                    (int) getAMap().getCameraPosition().zoom);
         }
 
         if (mLocationListener != null){
@@ -454,22 +467,22 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     @Override
     public LatLong getMapCenter(){
-        return DroneHelper.AMapLatLngToCoord(getMap().getCameraPosition().target);
+        return DroneHelper.AMapLatLngToCoord(getAMap().getCameraPosition().target);
     }
 
     @Override
     public float getMapZoomLevel(){
-        return getMap().getCameraPosition().zoom;
+        return getAMap().getCameraPosition().zoom;
     }
 
     @Override
     public float getMaxZoomLevel(){
-        return getMap().getMaxZoomLevel();
+        return getAMap().getMaxZoomLevel();
     }
 
     @Override
     public float getMinZoomLevel(){
-        return getMap().getMinZoomLevel();
+        return getAMap().getMinZoomLevel();
     }
 
     @Override
@@ -497,7 +510,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                 PolylineOptions flightPathOptions = new PolylineOptions();
                 flightPathOptions.color(FLIGHT_PATH_DEFAULT_COLOR)
                         .width(FLIGHT_PATH_DEFAULT_WIDTH).zIndex(1);
-                flightPath = getMap().addPolyline(flightPathOptions);
+                flightPath = getAMap().addPolyline(flightPathOptions);
             }
 
             List<LatLng> oldFlightPath = flightPath.getPoints();
@@ -561,7 +574,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     @Override
     public List<LatLong> projectPathIntoMap(List<LatLong> path) {
         List<LatLong> coords = new ArrayList<LatLong>();
-        Projection projection = getMap().getProjection();
+        Projection projection = getAMap().getProjection();
 
         for (LatLong point : path) {
             LatLng coord = projection.fromScreenLocation(new Point((int) point
@@ -625,7 +638,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     @Override
     public void updateCamera(final LatLong coord, final float zoomLevel) {
         if (coord != null) {
-            getMap().animateCamera(CameraUpdateFactory.newLatLngZoom(
+            getAMap().animateCamera(CameraUpdateFactory.newLatLngZoom(
                     DroneHelper.CoordToAMapLatLang(coord), zoomLevel));
         }
     }
@@ -634,7 +647,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     public void updateCameraBearing(float bearing) {
         final CameraPosition cameraPosition = new CameraPosition(DroneHelper.CoordToAMapLatLang
                 (getMapCenter()), getMapZoomLevel(), 0, bearing);
-        getMap().animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        getAMap().animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     @Override
@@ -650,7 +663,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             flightPath.color(DRONE_LEASH_DEFAULT_COLOR).width(
                     DroneHelper.scaleDpToPixels(DRONE_LEASH_DEFAULT_WIDTH,
                             getResources()));
-            mDroneLeashPath = getMap().addPolyline(flightPath);
+            mDroneLeashPath = getAMap().addPolyline(flightPath);
         }
 
         mDroneLeashPath.setPoints(pathPoints);
@@ -668,7 +681,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             PolylineOptions pathOptions = new PolylineOptions();
             pathOptions.color(MISSION_PATH_DEFAULT_COLOR).width(
                     MISSION_PATH_DEFAULT_WIDTH);
-            missionPath = getMap().addPolyline(pathOptions);
+            missionPath = getAMap().addPolyline(pathOptions);
         }
 
         missionPath.setPoints(pathPoints);
@@ -689,7 +702,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                 pathPoints.add(DroneHelper.CoordToAMapLatLang(coord));
             }
             pathOptions.addAll(pathPoints);
-            polygonsPaths.add(getMap().addPolygon(pathOptions));
+            polygonsPaths.add(getAMap().addPolygon(pathOptions));
         }
     }
 
@@ -702,7 +715,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         for (LatLong vertex : footprintToBeDraw.getVertexInGlobalFrame()) {
             pathOptions.add(DroneHelper.CoordToAMapLatLang(vertex));
         }
-        getMap().addPolygon(pathOptions);
+        getAMap().addPolygon(pathOptions);
 
     }
 
@@ -714,7 +727,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
      */
     @Override
     public void saveCameraPosition() {
-        CameraPosition camera = getMap().getCameraPosition();
+        CameraPosition camera = getAMap().getCameraPosition();
         mAppPrefs.prefs.edit()
                 .putFloat(PREF_LAT, (float) camera.target.latitude)
                 .putFloat(PREF_LNG, (float) camera.target.longitude)
@@ -734,7 +747,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         camera.target(new LatLng(settings.getFloat(PREF_LAT, DEFAULT_LATITUDE),
                 settings.getFloat(PREF_LNG, DEFAULT_LONGITUDE)));
 
-        getMap().moveCamera(CameraUpdateFactory.newCameraPosition(camera.build()));
+        getAMap().moveCamera(CameraUpdateFactory.newCameraPosition(camera.build()));
     }
 
     @Override
@@ -760,7 +773,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             final int width = rootView.getWidth();
             Timber.d("Screen W %d, H %d", width, height);
             if (height > 0 && width > 0){
-                getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,width,height,100));
+                getAMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,width,height,100));
             }
         }
     }
@@ -797,7 +810,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             return;
         }
 
-        final float currentZoomLevel = getMap().getCameraPosition().zoom;
+        final float currentZoomLevel = getAMap().getCameraPosition().zoom;
         final LatLong droneLocation = gps.getPosition();
         updateCamera(droneLocation, (int) currentZoomLevel);
     }
@@ -828,7 +841,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                 for (LatLong vertex : pathPoints){
                     pathOptions.add(DroneHelper.CoordToAMapLatLang(vertex));
                 }
-                footprintPoly = getMap().addPolygon(pathOptions);
+                footprintPoly = getAMap().addPolygon(pathOptions);
             }else{
                 List<LatLng> list = new ArrayList<LatLng>();
                 for (LatLong vertex : pathPoints){
@@ -840,7 +853,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     }
 
     public VisibleMapArea getVisibleMapArea(){
-        final AMap map = getMap();
+        final AMap map = getAMap();
         if(map == null)
             return null;
 
@@ -879,6 +892,8 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     public void onStart(){
         super.onStart();
 
+        getAMap();
+
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
                 .registerReceiver(eventReceiver, eventFilter);
     }
@@ -887,7 +902,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     public void onResume(){
         super.onResume();
 
-        setupMap();
+        setupMap(mAmap);
     }
 
     @Override
@@ -903,6 +918,10 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
                 .unregisterReceiver(eventReceiver);
+
+        if (mAmap != null){
+            mAmap = null;
+        }
     }
 
     @Override
