@@ -150,7 +150,7 @@ android {
         beta {
             signingConfig signingConfigs.release
             applicationIdSuffix ".beta"
-            versionNameSuffix ".beta.b${versionBuildTime}"
+            versionNameSuffix ".beta.${versionBuild}"
             resValue "string", "app_title", "${appTitle} Beta"
             manifestPlaceholders = [AMAP_API_V2_KEY: "6ca4669e0070d2d2bfcec4c419eec2d8"]
             buildConfigField "boolean", "ENABLE_CRASHLYTICS", "true"
