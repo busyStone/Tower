@@ -848,10 +848,10 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             maxFlightPathSize = args.getInt(EXTRA_MAX_FLIGHT_PATH_SIZE);
         }
 
-//        MapsInitializer.sdcardDir = DirectoryPath.getAMapPath();
-//        try{
-//            MapsInitializer.initialize(getActivity().getBaseContext());
-//        }catch (RemoteException e){}
+        MapsInitializer.sdcardDir = DirectoryPath.getAMapPath();
+        try{
+            MapsInitializer.initialize(getActivity().getBaseContext());
+        }catch (RemoteException e){}
 
         getAMap();
     }
