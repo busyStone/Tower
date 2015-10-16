@@ -42,10 +42,10 @@ public interface DPMap {
 	int FOOTPRINT_FILL_COLOR = Color.argb(80, 0, 0, 200);
 	
 	String PREF_LAT = "pref_map_lat";
-	float DEFAULT_LATITUDE = 37.8575523f;
+	float DEFAULT_LATITUDE = 39.9042110f;//37.8575523f;
 
 	String PREF_LNG = "pref_map_lng";
-	float DEFAULT_LONGITUDE = -122.292767f;
+	float DEFAULT_LONGITUDE = 116.4073950f;//-122.292767f;
 
 	String PREF_BEA = "pref_map_bea";
 	int DEFAULT_BEARING = 0;

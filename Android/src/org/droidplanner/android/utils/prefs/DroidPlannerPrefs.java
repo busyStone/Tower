@@ -105,11 +105,6 @@ public class DroidPlannerPrefs {
     public static final String PREF_ALT_DEFAULT_VALUE = "pref_alt_default_value";
     private static final double DEFAULT_ALT = 20; // meters
 
-    public static final String PREF_LAT_LAST_VALUE = "pref_lat_last_value";
-    public static final double DEFAULT_LAST_LAT = 39.9042110;
-    public static final String PREF_LNG_LAST_VALUE = "pref_lng_last_value";
-    public static final double DEFAULT_LAST_LNG = 116.4073950;
-
     public static final String PREF_APP_VERSION = "pref_version";
 
     private static final String PREF_IS_TTS_ENABLED = "pref_enable_tts";
@@ -460,29 +455,6 @@ public class DroidPlannerPrefs {
         } catch (Exception e) {
             return defaultValue;
         }
-    }
-
-    /*
-     * @return the last location latitude
-     */
-    public LatLong getLastLocationPreference(){
-        final String lat = prefs.getString(PREF_LAT_LAST_VALUE, null);
-        final String lng = prefs.getString(PREF_LNG_LAST_VALUE, null);
-
-        double latitude = DEFAULT_LAST_LAT;
-        double longitude = DEFAULT_LAST_LNG;
-
-        if (!TextUtils.isEmpty(lat) && !TextUtils.isEmpty(lng)){
-            latitude = Double.parseDouble(lat);
-            longitude = Double.parseDouble(lng);
-        }
-
-        return new LatLong(latitude, longitude);
-    }
-
-    public void setLastLocationPreference(LatLong latLong){
-        prefs.edit().putString(PREF_LAT_LAST_VALUE, String.valueOf(latLong.getLatitude())).apply();
-        prefs.edit().putString(PREF_LNG_LAST_VALUE, String.valueOf(latLong.getLongitude())).apply();
     }
 
     public boolean isTtsEnabled() {

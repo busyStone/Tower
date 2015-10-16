@@ -89,7 +89,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private static final IntentFilter eventFilter = new IntentFilter();
 
     private AMap mAmap;
-    private AMapLocation mLastAMapLocation;
+    private AMapLocation mLastAMapLocation = null;
 
     static {
         eventFilter.addAction(AttributeEvent.GPS_POSITION);
@@ -379,9 +379,6 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         // 更新 last location
         mLastAMapLocation = aMapLocation;
-        mAppPrefs.setLastLocationPreference(new LatLong(DroneHelper.AMapLatLngToCoord(
-                new LatLng(aMapLocation.getLatitude(),aMapLocation.getLongitude())
-        )));
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -714,8 +711,10 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         camera.bearing(settings.getFloat(PREF_BEA, DEFAULT_BEARING));
         camera.tilt(settings.getFloat(PREF_TILT, DEFAULT_TILT));
         camera.zoom(settings.getFloat(PREF_ZOOM, DEFAULT_ZOOM_LEVEL));
-        camera.target(new LatLng(settings.getFloat(PREF_LAT, DEFAULT_LATITUDE),
-                settings.getFloat(PREF_LNG, DEFAULT_LONGITUDE)));
+        camera.target(DroneHelper.CoordToAMapLatLang(
+                new LatLong(settings.getFloat(PREF_LAT, DEFAULT_LATITUDE),
+                settings.getFloat(PREF_LNG, DEFAULT_LONGITUDE))
+        ));
 
         getAMap().moveCamera(CameraUpdateFactory.newCameraPosition(camera.build()));
     }
@@ -854,17 +853,12 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 //            MapsInitializer.initialize(getActivity().getBaseContext());
 //        }catch (RemoteException e){}
 
-        LatLng latLong = DroneHelper.CoordToAMapLatLang(mAppPrefs.getLastLocationPreference());
-        mLastAMapLocation = new AMapLocation("");
-        mLastAMapLocation.setLatitude(latLong.latitude);
-        mLastAMapLocation.setLongitude(latLong.longitude);
+        getAMap();
     }
 
     @Override
     public void onStart(){
         super.onStart();
-
-        getAMap();
 
         setupMap(mAmap);
 
@@ -892,10 +886,6 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
                 .unregisterReceiver(eventReceiver);
-
-        if (mAmap != null){
-            mAmap = null;
-        }
     }
 
     @Override
