@@ -866,6 +866,8 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         getAMap();
 
+        setupMap(mAmap);
+
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
                 .registerReceiver(eventReceiver, eventFilter);
     }
@@ -874,7 +876,6 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     public void onResume(){
         super.onResume();
 
-        setupMap(mAmap);
         initLocation();
     }
 
