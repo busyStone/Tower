@@ -88,6 +88,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private static final IntentFilter eventFilter = new IntentFilter();
 
     private AMap mAmap;
+    private AMapLocation mLastAMapLocation;
 
     static {
         eventFilter.addAction(AttributeEvent.GPS_POSITION);
@@ -269,11 +270,10 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     }
 
     private AMapLocation getLastLocation(){
-        return LocationManagerProxy.getInstance(getActivity())
-                .getLastKnownLocation(LocationProviderProxy.AMapNetwork);
+        return mLastAMapLocation;
     }
 
-    private void requestLastLoaction(){
+    private void requestLastLocation(){
         AMapLocation aMapLocation = getLastLocation();
         if (aMapLocation != null && mLocationListener != null){
             mLocationListener.onLocationChanged(aMapLocation);
@@ -380,7 +380,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     @Override
     public void onLocationChanged(AMapLocation aMapLocation){
 
-        if (aMapLocation == null){
+        if (aMapLocation == null || aMapLocation.getAMapException().getErrorCode() != 0){
             return;
         }
 
@@ -410,6 +410,12 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         if (mLocationChangedListener != null){
             mLocationChangedListener.onLocationChanged(aMapLocation);
         }
+
+        // 更新 last location
+        mLastAMapLocation = aMapLocation;
+        mAppPrefs.setLastLocationPreference(new LatLong(DroneHelper.AMapLatLngToCoord(
+                new LatLng(aMapLocation.getLatitude(),aMapLocation.getLongitude())
+        )));
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -631,7 +637,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         //Update the listener with the last received location
         if (mLocationListener != null) {
-            requestLastLoaction();
+            requestLastLocation();
         }
     }
 
@@ -879,10 +885,15 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             maxFlightPathSize = args.getInt(EXTRA_MAX_FLIGHT_PATH_SIZE);
         }
 
-        MapsInitializer.sdcardDir = DirectoryPath.getAMapPath();
-        try{
-            MapsInitializer.initialize(getActivity().getBaseContext());
-        }catch (RemoteException e){}
+//        MapsInitializer.sdcardDir = DirectoryPath.getAMapPath();
+//        try{
+//            MapsInitializer.initialize(getActivity().getBaseContext());
+//        }catch (RemoteException e){}
+
+        LatLng latLong = DroneHelper.CoordToAMapLatLang(mAppPrefs.getLastLocationPreference());
+        mLastAMapLocation = new AMapLocation("");
+        mLastAMapLocation.setLatitude(latLong.latitude);
+        mLastAMapLocation.setLongitude(latLong.longitude);
     }
 
     @Override
