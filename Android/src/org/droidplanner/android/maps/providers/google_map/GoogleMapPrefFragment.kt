@@ -42,7 +42,7 @@ public class GoogleMapPrefFragment : MapProviderPreferences(), EditInputDialog.L
         val PREF_GOOGLE_TILE_PROVIDER_SETTINGS = "pref_google_tile_provider_settings"
 
         val PREF_MAP_TYPE = "pref_map_type"
-        val DEFAULT_MAP_TYPE = MAP_TYPE_SATELLITE
+        val DEFAULT_MAP_TYPE = MAP_TYPE_HYBRID
 
         val PREF_MAPBOX_TILE_PROVIDER_SETTINGS = "pref_mapbox_tile_provider_settings"
 
