@@ -52,6 +52,7 @@ import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
 import org.droidplanner.android.R;
 import org.droidplanner.android.DroidPlannerApp;
 import org.droidplanner.android.fragments.SettingsFragment;
+import org.droidplanner.android.graphic.map.GraphicHome;
 import org.droidplanner.android.maps.DPMap;
 import org.droidplanner.android.maps.MarkerInfo;
 import org.droidplanner.android.maps.providers.DPMapProvider;
@@ -154,8 +155,10 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             public void onMarkerDragStart(Marker marker) {
                 if (mMarkerDragListener != null) {
                     final MarkerInfo markerInfo = mBiMarkersMap.getKey(marker);
-                    markerInfo.setPosition(DroneHelper.AMapLatLngToCoord(marker.getPosition()));
-                    mMarkerDragListener.onMarkerDragStart(markerInfo);
+                    if(!(markerInfo instanceof GraphicHome)) {
+                        markerInfo.setPosition(DroneHelper.AMapLatLngToCoord(marker.getPosition()));
+                        mMarkerDragListener.onMarkerDragStart(markerInfo);
+                    }
                 }
             }
 
@@ -163,8 +166,11 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             public void onMarkerDrag(Marker marker) {
                 if (mMarkerDragListener != null) {
                     final MarkerInfo markerInfo = mBiMarkersMap.getKey(marker);
-                    markerInfo.setPosition(DroneHelper.AMapLatLngToCoord(marker.getPosition()));
-                    mMarkerDragListener.onMarkerDrag(markerInfo);
+                    if(!(markerInfo instanceof GraphicHome)) {
+                        markerInfo.setPosition(DroneHelper.AMapLatLngToCoord(marker.getPosition()));
+                        mMarkerDragListener.onMarkerDrag(markerInfo);
+                    }
+
                 }
             }
 
@@ -199,27 +205,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     }
 
     private void setAutoPanMode(AutoPanMode currrent, AutoPanMode update){
-        if (mPanMode.compareAndSet(currrent, update)){
-            switch (currrent){
-                case DRONE:
-                    LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
-                            .unregisterReceiver(eventReceiver);
-                    break;
-                case DISABLED:
-                default:
-                    break;
-            }
-
-            switch (update){
-                case DRONE:
-                    LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
-                            .registerReceiver(eventReceiver, eventFilter);
-                    break;
-                case DISABLED:
-                default:
-                    break;
-            }
-        }
+        mPanMode.compareAndSet(currrent, update);
     }
 
     // TODO: 15/9/18 alpha infoWindowAnchor
@@ -659,10 +645,9 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         }
 
         if (mDroneLeashPath == null) {
-            PolylineOptions flightPath = new PolylineOptions();
+            final PolylineOptions flightPath = new PolylineOptions();
             flightPath.color(DRONE_LEASH_DEFAULT_COLOR).width(
-                    DroneHelper.scaleDpToPixels(DRONE_LEASH_DEFAULT_WIDTH,
-                            getResources()));
+                    DroneHelper.scaleDpToPixels(DRONE_LEASH_DEFAULT_WIDTH, getResources()));
             mDroneLeashPath = getAMap().addPolyline(flightPath);
         }
 
@@ -672,15 +657,14 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     @Override
     public void updateMissionPath(PathSource pathSource) {
         List<LatLong> pathCoords = pathSource.getPathPoints();
-        final List<LatLng> pathPoints = new ArrayList<LatLng>(pathCoords.size());
+        final List<LatLng> pathPoints = new ArrayList<>(pathCoords.size());
         for (LatLong coord : pathCoords) {
             pathPoints.add(DroneHelper.CoordToAMapLatLang(coord));
         }
 
         if (missionPath == null) {
-            PolylineOptions pathOptions = new PolylineOptions();
-            pathOptions.color(MISSION_PATH_DEFAULT_COLOR).width(
-                    MISSION_PATH_DEFAULT_WIDTH);
+            final PolylineOptions pathOptions = new PolylineOptions();
+            pathOptions.color(MISSION_PATH_DEFAULT_COLOR).width(MISSION_PATH_DEFAULT_WIDTH);
             missionPath = getAMap().addPolyline(pathOptions);
         }
 
