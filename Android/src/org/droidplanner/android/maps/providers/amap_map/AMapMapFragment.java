@@ -79,7 +79,7 @@ import com.o3dr.services.android.lib.drone.property.Gps;
 import timber.log.Timber;
 
 public class AMapMapFragment extends SupportMapFragment implements DPMap,
-        AMap.OnMapLoadedListener,AMapLocationListener,LocationSource {
+        AMap.OnMapLoadedListener,AMapLocationListener {
 
     private final AtomicReference<AutoPanMode> mPanMode = new AtomicReference<AutoPanMode>(
             AutoPanMode.DISABLED);
@@ -89,6 +89,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private static final IntentFilter eventFilter = new IntentFilter();
 
     private AMap mAmap;
+    private AMapLocation mLastAMapLocation;
 
     static {
         eventFilter.addAction(AttributeEvent.GPS_POSITION);
@@ -114,11 +115,8 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         map.setMyLocationEnabled(true);
         map.setMyLocationType(AMap.LOCATION_TYPE_MAP_FOLLOW);
-        map.setLocationSource(this);
 
         map.setMapType(AMapPrefFragement.getMapType(getActivity().getApplicationContext()));
-
-        initLocation();
     }
 
     private void setupMapUI(AMap map){
@@ -255,11 +253,10 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     }
 
     private AMapLocation getLastLocation(){
-        return LocationManagerProxy.getInstance(getActivity())
-                .getLastKnownLocation(LocationProviderProxy.AMapNetwork);
+        return mLastAMapLocation;
     }
 
-    private void requestLastLoaction(){
+    private void requestLastLocation(){
         AMapLocation aMapLocation = getLastLocation();
         if (aMapLocation != null && mLocationListener != null){
             mLocationListener.onLocationChanged(aMapLocation);
@@ -321,7 +318,6 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     // ---------------------------------------------------------------------------------------------
     // LocationSource
-    private OnLocationChangedListener mLocationChangedListener;
     private LocationManagerProxy mAMapLocationManager;
 
     private void initLocation(){
@@ -330,26 +326,14 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         //注意设置合适的定位时间的间隔，并且在合适时间调用removeUpdates()方法来取消定位请求
         //在定位结束后，在合适的生命周期调用destroy()方法
         //其中如果间隔时间为-1，则定位只定一次
-        mAMapLocationManager.requestLocationData(
-                LocationProviderProxy.AMapNetwork, -1, 15, this);
+        mAMapLocationManager.requestLocationData(LocationProviderProxy.AMapNetwork,
+                20*1000, // minTime
+                10,      // minDistance
+                this);
         mAMapLocationManager.setGpsEnable(true);
     }
 
-    @Override
-    public void activate(OnLocationChangedListener listener){
-        mLocationChangedListener = listener;
-        if (mAMapLocationManager == null){
-            mAMapLocationManager = LocationManagerProxy.getInstance(getActivity());
-            mAMapLocationManager.requestLocationData(LocationProviderProxy.AMapNetwork,
-                    20*1000, // minTime
-                    10,      // minDistance
-                    this);
-        }
-    }
-
-    @Override
-    public void deactivate(){
-        mLocationChangedListener = null;
+    private void stopLocation(){
 
         if (mAMapLocationManager != null) {
             mAMapLocationManager.removeUpdates(this);
@@ -366,7 +350,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     @Override
     public void onLocationChanged(AMapLocation aMapLocation){
 
-        if (aMapLocation == null){
+        if (aMapLocation == null || aMapLocation.getAMapException().getErrorCode() != 0){
             return;
         }
 
@@ -393,9 +377,11 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             mLocationListener.onLocationChanged(aMapLocation);
         }
 
-        if (mLocationChangedListener != null){
-            mLocationChangedListener.onLocationChanged(aMapLocation);
-        }
+        // 更新 last location
+        mLastAMapLocation = aMapLocation;
+        mAppPrefs.setLastLocationPreference(new LatLong(DroneHelper.AMapLatLngToCoord(
+                new LatLng(aMapLocation.getLatitude(),aMapLocation.getLongitude())
+        )));
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -617,7 +603,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         //Update the listener with the last received location
         if (mLocationListener != null) {
-            requestLastLoaction();
+            requestLastLocation();
         }
     }
 
@@ -863,10 +849,15 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             maxFlightPathSize = args.getInt(EXTRA_MAX_FLIGHT_PATH_SIZE);
         }
 
-        MapsInitializer.sdcardDir = DirectoryPath.getAMapPath();
-        try{
-            MapsInitializer.initialize(getActivity().getBaseContext());
-        }catch (RemoteException e){}
+//        MapsInitializer.sdcardDir = DirectoryPath.getAMapPath();
+//        try{
+//            MapsInitializer.initialize(getActivity().getBaseContext());
+//        }catch (RemoteException e){}
+
+        LatLng latLong = DroneHelper.CoordToAMapLatLang(mAppPrefs.getLastLocationPreference());
+        mLastAMapLocation = new AMapLocation("");
+        mLastAMapLocation.setLatitude(latLong.latitude);
+        mLastAMapLocation.setLongitude(latLong.longitude);
     }
 
     @Override
@@ -884,13 +875,14 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         super.onResume();
 
         setupMap(mAmap);
+        initLocation();
     }
 
     @Override
     public void onPause(){
         super.onPause();
 
-        deactivate();
+        stopLocation();
     }
 
     @Override

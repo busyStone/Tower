@@ -9,10 +9,10 @@
             android:summary="@string/pref_map_type_summary"
             android:title="@string/pref_map_type"/>
 
-        <Preference
-            android:key="pref_amap_map_download"
-            android:title="@string/pref_title_amap_map_download"
-            android:summary="@string/pref_summary_amap_map_download"/>
+        <!--<Preference-->
+            <!--android:key="pref_amap_map_download"-->
+            <!--android:title="@string/pref_title_amap_map_download"-->
+            <!--android:summary="@string/pref_summary_amap_map_download"/>-->
 
     </PreferenceCategory>
 

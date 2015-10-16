@@ -37,7 +37,7 @@ public class AMapPrefFragement extends MapProviderPreferences {
        addPreferencesFromResource(R.xml.preferences_amap_maps);
 
        setupAMapMapTypePref();
-       setupAMapDownloadPref();
+//       setupAMapDownloadPref();
    }
 
     private static final String AMAP_TYPE_SATELLITE = "satellite";
