@@ -335,10 +335,9 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         //在定位结束后，在合适的生命周期调用destroy()方法
         //其中如果间隔时间为-1，则定位只定一次
         mAMapLocationManager.requestLocationData(LocationProviderProxy.AMapNetwork,
-                20*1000, // minTime
+                20 * 1000, // minTime
                 10,      // minDistance
                 this);
-        mAMapLocationManager.setGpsEnable(true);
     }
 
     private void stopLocation(){
