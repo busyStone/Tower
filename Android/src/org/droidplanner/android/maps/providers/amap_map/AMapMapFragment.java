@@ -89,7 +89,6 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private static final IntentFilter eventFilter = new IntentFilter();
 
     private AMap mAmap;
-    private AMapLocation mLastAMapLocation = null;
 
     static {
         eventFilter.addAction(AttributeEvent.GPS_POSITION);
@@ -253,7 +252,16 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     }
 
     private AMapLocation getLastLocation(){
-        return mLastAMapLocation;
+        AMapLocation aMapLocation = null;
+
+        if (mAMapLocationManager != null){
+            aMapLocation = mAMapLocationManager.getLastKnownLocation(LocationProviderProxy.AMapNetwork);
+            if (aMapLocation == null || aMapLocation.getAMapException().getErrorCode() != 0){
+                aMapLocation = null;
+            }
+        }
+
+        return aMapLocation;
     }
 
     private void requestLastLocation(){
@@ -376,9 +384,6 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         if (mLocationListener != null){
             mLocationListener.onLocationChanged(aMapLocation);
         }
-
-        // 更新 last location
-        mLastAMapLocation = aMapLocation;
     }
 
     // ---------------------------------------------------------------------------------------------
