@@ -272,13 +272,15 @@ public abstract class DroneMap extends ApiListenerFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+        
+        updateMapFragment();
 		mMapFragment.loadCameraPosition();
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-		updateMapFragment();
+//		updateMapFragment();
 	}
 
 	@Override

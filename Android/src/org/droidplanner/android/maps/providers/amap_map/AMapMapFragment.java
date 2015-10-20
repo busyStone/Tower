@@ -709,6 +709,10 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     @Override
     public void loadCameraPosition() {
+        // delayed to do load camera at this.onResume
+    }
+
+    private void loadCameraPosition_() {
         final SharedPreferences settings = mAppPrefs.prefs;
 
         final CameraPosition.Builder camera = new CameraPosition.Builder();
@@ -874,6 +878,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     public void onResume(){
         super.onResume();
 
+        loadCameraPosition_();
         initLocation();
     }
 
