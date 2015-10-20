@@ -280,7 +280,7 @@ public abstract class DroneMap extends ApiListenerFragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-//		updateMapFragment();
+		updateMapFragment();
 	}
 
 	@Override
