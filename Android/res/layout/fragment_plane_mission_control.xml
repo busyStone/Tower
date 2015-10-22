@@ -102,6 +102,7 @@
                 android:drawableTop="@drawable/ic_follow_active"
                 android:text="@string/mission_control_follow"
                 android:layout_weight="1"
+                android:visibility="gone"
                 />
 
             <ImageView
