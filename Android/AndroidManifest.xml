@@ -93,7 +93,8 @@
         <activity
             android:name=".activities.FlightActivity"
             android:launchMode="singleTask"
-            android:theme="@style/CustomActionBarTheme.Transparent" >
+            android:theme="@style/CustomActionBarTheme.Transparent"
+            android:screenOrientation="landscape" >
 
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -105,7 +106,8 @@
             android:label="@string/editor"
             android:launchMode="singleTop"
             android:theme="@style/CustomActionBarTheme.Transparent"
-            android:windowSoftInputMode="adjustNothing" >
+            android:windowSoftInputMode="adjustNothing"
+            android:screenOrientation="landscape" >
 
             <!-- Intent for opening mission files -->
             <intent-filter>
@@ -120,16 +122,19 @@
             android:name=".activities.ConfigurationActivity"
             android:label="@string/menu_drone_setup"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/settings"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".activities.helpers.MapPreferencesActivity"
             android:label="@string/activity_title_map_provider_preferences"
             android:launchMode="singleTop"
-            android:parentActivityName=".activities.SettingsActivity" >
+            android:parentActivityName=".activities.SettingsActivity"
+            android:screenOrientation="landscape" >
 
             <!-- Parent activity meta-data to support API level 7+ -->
             <meta-data
@@ -140,11 +145,13 @@
             android:name=".activities.LocatorActivity"
             android:label="@string/locator"
             android:launchMode="singleTop"
-            android:theme="@style/CustomActionBarTheme.Transparent" />
+            android:theme="@style/CustomActionBarTheme.Transparent"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".activities.WidgetActivity"
             android:launchMode="singleTop"
-            android:parentActivityName=".activities.FlightActivity" >
+            android:parentActivityName=".activities.FlightActivity"
+            android:screenOrientation="landscape" >
 
             <!-- Parent activity meta-data to support API level 7+ -->
             <meta-data
@@ -156,19 +163,22 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:noHistory="true"
-            android:theme="@style/CustomDialogTheme" />
+            android:theme="@style/CustomDialogTheme"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".maps.providers.google_map.DownloadMapboxMapActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:noHistory="true"
-            android:theme="@style/CustomActionBarTheme.Transparent" />
+            android:theme="@style/CustomActionBarTheme.Transparent"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".maps.providers.amap_map.AMapOfflineMapActivity"
             android:label="@string/title_activity_amap_offline_map"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
-            android:noHistory="true"/>
+            android:noHistory="true"
+            android:screenOrientation="landscape" />
 
         <service android:name=".AppService" />
 
