@@ -17,16 +17,16 @@ public class ScreenOrientation {
 	}
 
 	public void requestLock() {
-		if (isPrefLockOrientationSet()) {
-			lockOrientation();
-		}
+//		if (isPrefLockOrientationSet()) {
+//			lockOrientation();
+//		}
 	}
 
 	public void unlock() {
-		if (screenRequestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
-			screenRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
-			setOrientation();
-		}
+//		if (screenRequestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+//			screenRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+//			setOrientation();
+//		}
 	}
 
 	private void setOrientation() {

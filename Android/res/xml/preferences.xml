@@ -290,11 +290,11 @@
                     android:key="pref_keep_screen_bright"
                     android:summary="@string/pref_keep_screen_bright_summary"
                     android:title="@string/pref_keep_screen_bright" />
-                <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="pref_lock_screen_orientation"
-                    android:summary="@string/pref_lock_screen_orientation_summary"
-                    android:title="@string/pref_lock_screen_orientation" />
+                <!--<CheckBoxPreference-->
+                    <!--android:defaultValue="false"-->
+                    <!--android:key="pref_lock_screen_orientation"-->
+                    <!--android:summary="@string/pref_lock_screen_orientation_summary"-->
+                    <!--android:title="@string/pref_lock_screen_orientation" />-->
             </PreferenceCategory>
 
             <PreferenceCategory android:title="@string/pref_misc_title">
