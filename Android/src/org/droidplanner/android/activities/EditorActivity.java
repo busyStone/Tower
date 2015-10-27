@@ -18,7 +18,7 @@ import android.view.View.OnLongClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
+//import com.google.android.gms.analytics.HitBuilders;
 import com.o3dr.services.android.lib.coordinate.LatLong;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
 import com.o3dr.services.android.lib.drone.mission.MissionItemType;
@@ -326,11 +326,11 @@ public class EditorActivity extends DrawerNavigationUI implements OnPathFinished
                     Toast.makeText(context, R.string.file_saved_success, Toast.LENGTH_SHORT)
                             .show();
 
-                    final HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
-                            .setCategory(GAUtils.Category.MISSION_PLANNING)
-                            .setAction("Mission saved to file")
-                            .setLabel("Mission items count");
-                    GAUtils.sendEvent(eventBuilder);
+//                    final HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
+//                            .setCategory(GAUtils.Category.MISSION_PLANNING)
+//                            .setAction("Mission saved to file")
+//                            .setLabel("Mission items count");
+//                    GAUtils.sendEvent(eventBuilder);
 
                     break;
                 }

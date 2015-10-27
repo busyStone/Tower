@@ -8,7 +8,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.CircularArray;
 import android.util.Pair;
 
-import com.google.android.gms.analytics.HitBuilders;
+//import com.google.android.gms.analytics.HitBuilders;
 import com.o3dr.android.client.Drone;
 import com.o3dr.services.android.lib.coordinate.LatLong;
 import com.o3dr.services.android.lib.coordinate.LatLongAlt;
@@ -779,19 +779,19 @@ public class MissionProxy implements DPMap.PathSource {
 
         missionItemsList += "]";
 
-        HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
-                .setCategory(GAUtils.Category.MISSION_PLANNING)
-                .setAction("Mission sent to drone")
-                .setLabel("Mission items: " + missionItemsList);
-        GAUtils.sendEvent(eventBuilder);
-
-        //Send an event for the created mission
-        eventBuilder = new HitBuilders.EventBuilder()
-                .setCategory(GAUtils.Category.MISSION_PLANNING)
-                .setAction("Mission sent to drone")
-                .setLabel("Mission items count")
-                .setValue(missionItemsCount);
-        GAUtils.sendEvent(eventBuilder);
+//        HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
+//                .setCategory(GAUtils.Category.MISSION_PLANNING)
+//                .setAction("Mission sent to drone")
+//                .setLabel("Mission items: " + missionItemsList);
+//        GAUtils.sendEvent(eventBuilder);
+//
+//        //Send an event for the created mission
+//        eventBuilder = new HitBuilders.EventBuilder()
+//                .setCategory(GAUtils.Category.MISSION_PLANNING)
+//                .setAction("Mission sent to drone")
+//                .setLabel("Mission items count")
+//                .setValue(missionItemsCount);
+//        GAUtils.sendEvent(eventBuilder);
     }
 
     public double getMissionLength() {

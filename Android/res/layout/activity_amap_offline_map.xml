@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="org.droidplanner.android.maps.providers.amap_map.AMapOfflineMapActivity">
+
+    <ExpandableListView
+        android:id="@+id/amap_offline_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/amap_offline_bk"
+        android:cacheColorHint="@color/amap_offline_cache_color_hint"
+        android:listSelector="@color/amap_offline_list_selector"
+        android:childDivider="@android:color/darker_gray"
+        android:divider="@android:color/black"
+        android:dividerHeight="1.5dip"
+        />
+</LinearLayout>

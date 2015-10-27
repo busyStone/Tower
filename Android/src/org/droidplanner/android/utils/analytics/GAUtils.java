@@ -10,10 +10,10 @@ import org.droidplanner.android.utils.prefs.DroidPlannerPrefs;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Logger;
-import com.google.android.gms.analytics.Tracker;
+//import com.google.android.gms.analytics.GoogleAnalytics;
+//import com.google.android.gms.analytics.HitBuilders;
+//import com.google.android.gms.analytics.Logger;
+//import com.google.android.gms.analytics.Tracker;
 
 /**
  * Components related to google analytics logic.
@@ -85,27 +85,27 @@ public class GAUtils {
 	/**
 	 * Stores a reference to the google analytics app tracker.
 	 */
-	private static Tracker sAppTracker;
+//	private static Tracker sAppTracker;
 
 	public static void initGATracker(DroidPlannerApp app) {
-		if (sAppTracker == null) {
-			final Context context = app.getApplicationContext();
+//		if (sAppTracker == null) {
+//			final Context context = app.getApplicationContext();
 
-			final GoogleAnalytics analytics = GoogleAnalytics.getInstance(context);
-
-			// Call is needed for now to allow dispatching of auto activity reports
-			// (http://stackoverflow.com/a/23256722/1088814)
-			analytics.enableAutoActivityReports(app);
-
-			analytics.setAppOptOut(!new DroidPlannerPrefs(context).isUsageStatisticsEnabled());
-
-			// If we're in debug mode, set log level to verbose.
-			if (BuildConfig.DEBUG) {
-				analytics.getLogger().setLogLevel(Logger.LogLevel.VERBOSE);
-			}
-
-			sAppTracker = analytics.newTracker(R.xml.google_analytics_tracker);
-		}
+//			final GoogleAnalytics analytics = GoogleAnalytics.getInstance(context);
+//
+//			// Call is needed for now to allow dispatching of auto activity reports
+//			// (http://stackoverflow.com/a/23256722/1088814)
+//			analytics.enableAutoActivityReports(app);
+//
+//			analytics.setAppOptOut(!new DroidPlannerPrefs(context).isUsageStatisticsEnabled());
+//
+//			// If we're in debug mode, set log level to verbose.
+//			if (BuildConfig.DEBUG) {
+//				analytics.getLogger().setLogLevel(Logger.LogLevel.VERBOSE);
+//			}
+//
+//			sAppTracker = analytics.newTracker(R.xml.google_analytics_tracker);
+//		}
 	}
 
 	public static void startNewSession(Context context) {
@@ -116,36 +116,36 @@ public class GAUtils {
 		final boolean isDroneShareUser = prefs.isLiveUploadEnabled() && !login.isEmpty()
 				&& !password.isEmpty();
 
-		sendHit(new HitBuilders.AppViewBuilder()
-				.setNewSession()
-				.setCustomDimension(CustomDimension.DRONESHARE_ACTIVE,
-						String.valueOf(isDroneShareUser)).build());
+//		sendHit(new HitBuilders.AppViewBuilder()
+//				.setNewSession()
+//				.setCustomDimension(CustomDimension.DRONESHARE_ACTIVE,
+//						String.valueOf(isDroneShareUser)).build());
 	}
 
-	public static void sendEvent(HitBuilders.EventBuilder eventBuilder) {
-		if (eventBuilder != null) {
-			sendHit(eventBuilder.build());
-		}
-	}
+//	public static void sendEvent(HitBuilders.EventBuilder eventBuilder) {
+//		if (eventBuilder != null) {
+//			sendHit(eventBuilder.build());
+//		}
+//	}
 
-    public static void sendEvent(HitBuilders.SocialBuilder socialBuilder){
-        if(socialBuilder != null){
-            sendHit(socialBuilder.build());
-        }
-    }
+//    public static void sendEvent(HitBuilders.SocialBuilder socialBuilder){
+//        if(socialBuilder != null){
+//            sendHit(socialBuilder.build());
+//        }
+//    }
 
-	public static void sendTiming(HitBuilders.TimingBuilder timingBuilder) {
-		if (timingBuilder != null) {
-			sendHit(timingBuilder.build());
-		}
-	}
+//	public static void sendTiming(HitBuilders.TimingBuilder timingBuilder) {
+//		if (timingBuilder != null) {
+//			sendHit(timingBuilder.build());
+//		}
+//	}
 
-	private static void sendHit(Map<String, String> hitParams) {
-		if (sAppTracker == null) {
-			Log.w(LOG_TAG, "Google Analytics tracker is not initialized.");
-			return;
-		}
+//	private static void sendHit(Map<String, String> hitParams) {
+//		if (sAppTracker == null) {
+//			Log.w(LOG_TAG, "Google Analytics tracker is not initialized.");
+//			return;
+//		}
 
-		sAppTracker.send(hitParams);
-	}
+//		sAppTracker.send(hitParams);
+//	}
 }

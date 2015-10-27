@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.RadioButton
 import android.widget.TextView
-import com.google.android.gms.analytics.HitBuilders
+//import com.google.android.gms.analytics.HitBuilders
 import com.o3dr.android.client.Drone
 import com.o3dr.android.client.apis.VehicleApi
 import com.o3dr.services.android.lib.drone.attribute.AttributeType
@@ -53,8 +53,8 @@ public class FlightModeAdapter(context: Context, val drone: Drone) : SelectionLi
                     VehicleApi.getApi(drone).setVehicleMode(vehicleMode)
 
                     //Record the attempt to change flight modes
-                    val eventBuilder = HitBuilders.EventBuilder().setCategory(GAUtils.Category.FLIGHT).setAction("Flight mode changed").setLabel(vehicleMode.label)
-                    GAUtils.sendEvent(eventBuilder)
+//                    val eventBuilder = HitBuilders.EventBuilder().setCategory(GAUtils.Category.FLIGHT).setAction("Flight mode changed").setLabel(vehicleMode.label)
+//                    GAUtils.sendEvent(eventBuilder)
 
                     listener?.onSelection()
                 }

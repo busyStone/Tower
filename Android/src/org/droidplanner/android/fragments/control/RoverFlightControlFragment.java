@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.google.android.gms.analytics.HitBuilders;
+//import com.google.android.gms.analytics.HitBuilders;
 import com.o3dr.android.client.Drone;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
 import com.o3dr.services.android.lib.drone.attribute.AttributeType;
@@ -168,8 +168,8 @@ public class RoverFlightControlFragment extends BaseFlightControlFragment {
     @Override
     public void onClick(View v) {
         final Drone drone = getDrone();
-        HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
-                .setCategory(GAUtils.Category.FLIGHT);
+//        HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
+//                .setCategory(GAUtils.Category.FLIGHT);
 
         switch (v.getId()) {
             case R.id.mc_connectBtn:
@@ -178,27 +178,27 @@ public class RoverFlightControlFragment extends BaseFlightControlFragment {
 
             case R.id.mc_homeBtn:
                 drone.changeVehicleMode(VehicleMode.ROVER_RTL);
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.ROVER_RTL.getLabel());
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.ROVER_RTL.getLabel());
                 break;
 
             case R.id.mc_pause: {
                 drone.changeVehicleMode(VehicleMode.ROVER_HOLD);
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.ROVER_HOLD.getLabel());
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.ROVER_HOLD.getLabel());
                 break;
             }
 
             case R.id.mc_autoBtn:
                 drone.changeVehicleMode(VehicleMode.ROVER_AUTO);
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.ROVER_AUTO.getLabel());
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.ROVER_AUTO.getLabel());
                 break;
 
             default:
-                eventBuilder = null;
+//                eventBuilder = null;
                 break;
         }
 
-        if (eventBuilder != null) {
-            GAUtils.sendEvent(eventBuilder);
-        }
+//        if (eventBuilder != null) {
+//            GAUtils.sendEvent(eventBuilder);
+//        }
     }
 }

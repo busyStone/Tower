@@ -12,6 +12,7 @@ import org.droidplanner.android.R;
 import org.droidplanner.android.fragments.FlightDataFragment;
 import org.droidplanner.android.fragments.WidgetsListFragment;
 import org.droidplanner.android.fragments.actionbar.ActionBarTelemFragment;
+
 import org.droidplanner.android.view.SlidingDrawer;
 
 public class FlightActivity extends DrawerNavigationUI implements SlidingUpPanelLayout.PanelSlideListener {
@@ -134,7 +135,6 @@ public class FlightActivity extends DrawerNavigationUI implements SlidingUpPanel
         updateActionDrawerBottomMargin(viewLocs[0] + flightActionBar.getWidth(), bottomMargin);
     }
 
-    @Override
     public void onPanelExpanded(View view) {
         //Update the bottom margin for the action drawer
         final View flightActionBar = ((ViewGroup)view).getChildAt(0);

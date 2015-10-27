@@ -244,7 +244,11 @@ public abstract class DroneMap extends ApiListenerFragment {
 
 	private void updateMapFragment() {
 		// Add the map fragment instance (based on user preference)
-		final DPMapProvider mapProvider = mAppPrefs.getMapProvider();
+        DPMapProvider mapProvider = mAppPrefs.getMapProvider();
+        final Context context = getActivity().getApplicationContext();
+        if (!mapProvider.IsMapProviderValid(context)){
+            mapProvider = DPMapProvider.getValidMapProvider(context);
+        }
 
 		final FragmentManager fm = getChildFragmentManager();
 		mMapFragment = (DPMap) fm.findFragmentById(R.id.map_fragment_container);
@@ -268,6 +272,8 @@ public abstract class DroneMap extends ApiListenerFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+        
+        updateMapFragment();
 		mMapFragment.loadCameraPosition();
 	}
 

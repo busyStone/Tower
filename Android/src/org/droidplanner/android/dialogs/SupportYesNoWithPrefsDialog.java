@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
+//import com.google.android.gms.analytics.HitBuilders;
 
 import org.droidplanner.android.R;
 import org.droidplanner.android.utils.analytics.GAUtils;
@@ -130,12 +130,12 @@ public class SupportYesNoWithPrefsDialog extends SupportYesNoDialog {
 
             editor.apply();
 
-            HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
-                    .setCategory(GAUtils.Category.PREFERENCE_DIALOGS)
-                    .setAction(getArguments().getString(EXTRA_TITLE))
-                    .setLabel("Response: " + (isPositiveResponse ? "Yes" : "No") + (dontShow ?
-                            " (Always)" : " (Just once)"));
-            GAUtils.sendEvent(eventBuilder);
+//            HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
+//                    .setCategory(GAUtils.Category.PREFERENCE_DIALOGS)
+//                    .setAction(getArguments().getString(EXTRA_TITLE))
+//                    .setLabel("Response: " + (isPositiveResponse ? "Yes" : "No") + (dontShow ?
+//                            " (Always)" : " (Just once)"));
+//            GAUtils.sendEvent(eventBuilder);
         }
     }
 

@@ -27,6 +27,7 @@ import com.o3dr.services.android.lib.drone.attribute.AttributeEventExtra;
 import com.o3dr.services.android.lib.drone.attribute.error.ErrorType;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import org.droidplanner.android.DroidPlannerApp;
 import org.droidplanner.android.R;
 import org.droidplanner.android.activities.DrawerNavigationUI;
 import org.droidplanner.android.fragments.control.FlightControlManagerFragment;
@@ -261,7 +262,7 @@ public class FlightDataFragment extends ApiListenerFragment implements SlidingDr
         mSlidingPanel.setPanelSlideListener(slidingPanelListenerMgr);
         warningView = (TextView) view.findViewById(R.id.failsafeTextView);
 
-        setupMapFragment();
+        setupMapFragment(false);
 
         mGoToMyLocation = (FloatingActionButton) view.findViewById(R.id.my_location_button);
         mGoToDroneLocation = (FloatingActionButton) view.findViewById(R.id.drone_location_button);
@@ -364,7 +365,15 @@ public class FlightDataFragment extends ApiListenerFragment implements SlidingDr
     @Override
     public void onStart() {
         super.onStart();
-        setupMapFragment();
+
+        // 仅提示一次
+        boolean showErrorDialog = false;
+        if (!DroidPlannerApp.IsGMSHadChecked){
+            showErrorDialog = true;
+            DroidPlannerApp.IsGMSHadChecked = true;
+        }
+
+        setupMapFragment(showErrorDialog);
         updateMapLocationButtons(getAppPrefs().getAutoPanMode());
     }
 
@@ -397,9 +406,11 @@ public class FlightDataFragment extends ApiListenerFragment implements SlidingDr
      * initialize the map fragment, this checks if the Google Play Services
      * binary is installed and up to date.
      */
-    private void setupMapFragment() {
+    private void setupMapFragment(boolean showErrorDialog) {
+        final boolean isGMSValid = isGooglePlayServicesValid(showErrorDialog);
+
         final FragmentManager fm = getChildFragmentManager();
-        if (mapFragment == null && isGooglePlayServicesValid(true)) {
+        if (mapFragment == null){// && isGooglePlayServicesValid(true)) {
             mapFragment = (FlightMapFragment) fm.findFragmentById(R.id.flight_map_fragment);
             if (mapFragment == null) {
                 mapFragment = new FlightMapFragment();

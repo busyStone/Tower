@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
+//import com.google.android.gms.analytics.HitBuilders;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.VehicleApi;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
@@ -104,11 +104,11 @@ public class CopterFlightControlFragment extends BaseFlightControlFragment imple
                         }
 
                         if (eventLabel != null) {
-                            HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
-                                    .setCategory(GAUtils.Category.FLIGHT)
-                                    .setAction(ACTION_FLIGHT_ACTION_BUTTON)
-                                    .setLabel(eventLabel);
-                            GAUtils.sendEvent(eventBuilder);
+//                            HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
+//                                    .setCategory(GAUtils.Category.FLIGHT)
+//                                    .setAction(ACTION_FLIGHT_ACTION_BUTTON)
+//                                    .setLabel(eventLabel);
+//                            GAUtils.sendEvent(eventBuilder);
 
                             Toast.makeText(getActivity(), eventLabel, Toast.LENGTH_SHORT).show();
                         }
@@ -219,8 +219,8 @@ public class CopterFlightControlFragment extends BaseFlightControlFragment imple
 
     @Override
     public void onClick(View v) {
-        HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
-                .setCategory(GAUtils.Category.FLIGHT);
+//        HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
+//                .setCategory(GAUtils.Category.FLIGHT);
 
         final Drone drone = getDrone();
         switch (v.getId()) {
@@ -230,29 +230,29 @@ public class CopterFlightControlFragment extends BaseFlightControlFragment imple
 
             case R.id.mc_armBtn:
                 getArmingConfirmation();
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Arm");
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Arm");
                 break;
 
             case R.id.mc_disarmBtn:
                 getDrone().arm(false);
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Disarm");
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Disarm");
                 break;
 
             case R.id.mc_land:
                 getDrone().changeVehicleMode(VehicleMode.COPTER_LAND);
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode
-                        .COPTER_LAND.getLabel());
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode
+//                        .COPTER_LAND.getLabel());
                 break;
 
             case R.id.mc_takeoff:
                 getTakeOffConfirmation();
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Takeoff");
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Takeoff");
                 break;
 
             case R.id.mc_homeBtn:
                 getDrone().changeVehicleMode(VehicleMode.COPTER_RTL);
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.COPTER_RTL
-                        .getLabel());
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.COPTER_RTL
+//                        .getLabel());
                 break;
 
             case R.id.mc_pause: {
@@ -262,18 +262,18 @@ public class CopterFlightControlFragment extends BaseFlightControlFragment imple
                 }
 
                 drone.pauseAtCurrentLocation();
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Pause");
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Pause");
                 break;
             }
 
             case R.id.mc_autoBtn:
                 getDrone().changeVehicleMode(VehicleMode.COPTER_AUTO);
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.COPTER_AUTO.getLabel());
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.COPTER_AUTO.getLabel());
                 break;
 
             case R.id.mc_TakeoffInAutoBtn:
                 getTakeOffInAutoConfirmation();
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.COPTER_AUTO.getLabel());
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel(VehicleMode.COPTER_AUTO.getLabel());
                 break;
 
             case R.id.mc_follow:
@@ -282,17 +282,17 @@ public class CopterFlightControlFragment extends BaseFlightControlFragment imple
 
             case R.id.mc_dronieBtn:
                 getDronieConfirmation();
-                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Dronie uploaded");
+//                eventBuilder.setAction(ACTION_FLIGHT_ACTION_BUTTON).setLabel("Dronie uploaded");
                 break;
 
             default:
-                eventBuilder = null;
+//                eventBuilder = null;
                 break;
         }
 
-        if (eventBuilder != null) {
-            GAUtils.sendEvent(eventBuilder);
-        }
+//        if (eventBuilder != null) {
+//            GAUtils.sendEvent(eventBuilder);
+//        }
 
     }
 

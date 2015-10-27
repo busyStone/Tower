@@ -1,6 +1,13 @@
 package org.droidplanner.android.maps.providers;
 
+import android.content.Context;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+
 import org.droidplanner.android.maps.DPMap;
+import org.droidplanner.android.maps.providers.amap_map.AMapMapFragment;
+import org.droidplanner.android.maps.providers.amap_map.AMapPrefFragement;
 import org.droidplanner.android.maps.providers.google_map.GoogleMapFragment;
 import org.droidplanner.android.maps.providers.google_map.GoogleMapPrefFragment;
 
@@ -22,7 +29,32 @@ public enum DPMapProvider {
 		public MapProviderPreferences getMapProviderPreferences() {
 			return new GoogleMapPrefFragment();
 		}
-	};
+
+        @Override
+        public boolean IsMapProviderValid(Context context){
+            // Check for the google play services is available
+            final int playStatus = GooglePlayServicesUtil
+                    .isGooglePlayServicesAvailable(context);
+            return playStatus == ConnectionResult.SUCCESS;
+        }
+	},
+
+    AMAP_MAP {
+        @Override
+        public DPMap getMapFragment() {
+            return new AMapMapFragment();
+        }
+
+        @Override
+        public MapProviderPreferences getMapProviderPreferences() {
+            return new AMapPrefFragement();
+        }
+
+        @Override
+        public boolean IsMapProviderValid(Context context){
+            return true;
+        }
+    };
 
 	/**
 	 * @return the fragment implementing the map.
@@ -33,6 +65,8 @@ public enum DPMapProvider {
 	 * @return the set of preferences supported by the map.
 	 */
 	public abstract MapProviderPreferences getMapProviderPreferences();
+
+    public abstract boolean IsMapProviderValid(Context context);
 
 	/**
 	 * Returns the map type corresponding to the given map name.
@@ -52,6 +86,19 @@ public enum DPMapProvider {
 			return null;
 		}
 	}
+
+    public static DPMapProvider getValidMapProvider(Context context){
+        final DPMapProvider[] providers = DPMapProvider.values();
+        final int providersCount = providers.length;
+
+        for (int i = 0; i < providersCount; i++) {
+            if (providers[i].IsMapProviderValid(context)){
+                return providers[i];
+            }
+        }
+
+        return null;
+    }
 
 	/**
 	 * By default, Google Map is the map provider.

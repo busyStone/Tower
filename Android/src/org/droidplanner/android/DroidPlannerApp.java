@@ -12,7 +12,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
+//import com.crashlytics.android.Crashlytics;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.VehicleApi;
@@ -24,6 +24,7 @@ import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.connection.DroneSharePrefs;
 import com.o3dr.services.android.lib.model.AbstractCommandListener;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import org.droidplanner.android.activities.helpers.BluetoothDevicesActivity;
 import org.droidplanner.android.maps.providers.google_map.tiles.mapbox.offline.MapDownloader;
@@ -38,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.fabric.sdk.android.Fabric;
+//import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 public class DroidPlannerApp extends Application implements DroneListener, TowerListener {
@@ -61,6 +62,7 @@ public class DroidPlannerApp extends Application implements DroneListener, Tower
     public static final String ACTION_DRONE_EVENT = Utils.PACKAGE_NAME + ".ACTION_DRONE_EVENT";
     public static final String EXTRA_DRONE_EVENT = "extra_drone_event";
 
+    public static boolean IsGMSHadChecked = false;
     private static final AtomicBoolean isCellularNetworkOn = new AtomicBoolean(false);
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -165,7 +167,8 @@ public class DroidPlannerApp extends Application implements DroneListener, Tower
         GAUtils.startNewSession(context);
 
         if(BuildConfig.ENABLE_CRASHLYTICS) {
-            Fabric.with(context, new Crashlytics());
+//            Fabric.with(context, new Crashlytics());
+            CrashReport.initCrashReport(context, "900010528", false);
         }
 
         if (BuildConfig.WRITE_LOG_FILE) {

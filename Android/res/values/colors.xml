@@ -46,4 +46,14 @@
     <color name="medium_grey">#3C3C3C</color>
     <color name="grey700">#616161</color>
 
+    <!-- colors for amap offline activity -->
+    <color name="amap_offline_bk">#ffffff</color>
+    <color name="amap_offline_cache_color_hint">#00000000</color>
+    <color name="amap_offline_list_selector">#00000000</color>
+    <color name="amap_offline_item_name_bk">#333333</color>
+    <color name="amap_offline_item_size">#777777</color>
+
+    <color name="gary">#898989</color>
+    <color name="gray_lite">#c5c5c5</color>
+
 </resources>

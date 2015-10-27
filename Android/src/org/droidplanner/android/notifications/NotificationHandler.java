@@ -2,7 +2,7 @@ package org.droidplanner.android.notifications;
 
 import android.content.Context;
 
-import com.google.android.gms.analytics.HitBuilders;
+//import com.google.android.gms.analytics.HitBuilders;
 import com.o3dr.android.client.Drone;
 import com.o3dr.services.android.lib.drone.attribute.error.ErrorType;
 
@@ -55,11 +55,11 @@ public class NotificationHandler {
     public void onAutopilotError(String errorName) {
         final ErrorType errorType = ErrorType.getErrorById(errorName);
         if (errorType != null && ErrorType.NO_ERROR != errorType) {
-            final HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
-                    .setCategory(GAUtils.Category.FAILSAFE)
-                    .setAction("Autopilot error")
-                    .setLabel(errorType.getLabel(context).toString());
-            GAUtils.sendEvent(eventBuilder);
+//            final HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder()
+//                    .setCategory(GAUtils.Category.FAILSAFE)
+//                    .setAction("Autopilot error")
+//                    .setLabel(errorType.getLabel(context).toString());
+//            GAUtils.sendEvent(eventBuilder);
         }
     }
 

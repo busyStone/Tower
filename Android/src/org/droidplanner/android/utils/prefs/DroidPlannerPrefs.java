@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
+import com.o3dr.services.android.lib.coordinate.LatLong;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 
 import org.droidplanner.android.fragments.widget.TowerWidgets;

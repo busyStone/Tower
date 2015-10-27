@@ -22,8 +22,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.HitBuilders;
+//import com.google.android.gms.analytics.GoogleAnalytics;
+//import com.google.android.gms.analytics.HitBuilders;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.VehicleApi;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
@@ -48,6 +48,7 @@ import org.droidplanner.android.utils.unit.UnitManager;
 import org.droidplanner.android.utils.unit.providers.length.LengthUnitProvider;
 import org.droidplanner.android.utils.unit.systems.UnitSystem;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 
@@ -190,8 +191,8 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
                         public boolean onPreferenceChange(Preference preference, Object newValue) {
                             // Update the google analytics singleton.
                             final boolean optIn = (Boolean) newValue;
-                            final GoogleAnalytics analytics = GoogleAnalytics.getInstance(context);
-                            analytics.setAppOptOut(!optIn);
+//                            final GoogleAnalytics analytics = GoogleAnalytics.getInstance(context);
+//                            analytics.setAppOptOut(!optIn);
                             return true;
                         }
                     });
@@ -237,6 +238,10 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
             final TowerWidgets[] widgets = TowerWidgets.values();
             for(TowerWidgets widget: widgets){
+                if (widget.getPrefKey() == TowerWidgets.SOLO_VIDEO.getPrefKey()){
+                    continue;
+                }
+
                 final CheckBoxPreference widgetPref = new CheckBoxPreference(activity);
                 widgetPref.setKey(widget.getPrefKey());
                 widgetPref.setTitle(widget.getLabelResId());
@@ -258,15 +263,37 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
             final DPMapProvider[] providers = DPMapProvider.values();
             final int providersCount = providers.length;
 
-            final CharSequence[] providersNames = new CharSequence[providersCount];
-            final CharSequence[] providersNamesValues = new CharSequence[providersCount];
+            final CharSequence[] providersNamesTemp = new CharSequence[providersCount];
+            final CharSequence[] providersNamesValuesTemp = new CharSequence[providersCount];
+            final Context context = getContext();
+            int validCnt = 0;
             for (int i = 0; i < providersCount; i++) {
+                if (!providers[i].IsMapProviderValid(context)){ // may check valid
+                    continue;
+                }
+
                 final String providerName = providers[i].name();
-                providersNamesValues[i] = providerName;
-                providersNames[i] = providerName.toLowerCase(Locale.ENGLISH).replace('_', ' ');
+                providersNamesValuesTemp[validCnt] = providerName;
+                providersNamesTemp[validCnt] = providerName.toLowerCase(Locale.ENGLISH).replace('_', ' ');
+
+                validCnt++;
             }
 
-            final String defaultProviderName = dpPrefs.getMapProviderName();
+            // to cut array
+            final CharSequence[] providersNames = new CharSequence[validCnt];
+            final CharSequence[] providersNamesValues = new CharSequence[validCnt];
+            for (int i = 0; i < validCnt; i++){
+                providersNames[i] = providersNamesTemp[i];
+                providersNamesValues[i] = providersNamesValuesTemp[i];
+            }
+
+            String defaultProviderName = dpPrefs.getMapProviderName();
+
+            // providerNamesValues must > 0
+            final DPMapProvider defaultProvider = DPMapProvider.getMapProvider(defaultProviderName);
+            if (defaultProvider == null || !defaultProvider.IsMapProviderValid(context)){
+                defaultProviderName = providersNamesValues[0].toString();
+            }
 
             mapsProvidersPref.setEntries(providersNames);
             mapsProvidersPref.setEntryValues(providersNamesValues);
@@ -610,19 +637,19 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
         final Preference firmwareVersionPref = findPreference(DroidPlannerPrefs.PREF_FIRMWARE_VERSION);
         if (firmwareVersionPref != null) {
-            final HitBuilders.EventBuilder firmwareEvent = new HitBuilders.EventBuilder()
-                    .setCategory(GAUtils.Category.MAVLINK_CONNECTION);
+//            final HitBuilders.EventBuilder firmwareEvent = new HitBuilders.EventBuilder()
+//                    .setCategory(GAUtils.Category.MAVLINK_CONNECTION);
 
             if (firmwareVersion == null) {
                 firmwareVersionPref.setSummary(R.string.empty_content);
-                firmwareEvent.setAction("Firmware version unset");
+//                firmwareEvent.setAction("Firmware version unset");
             } else {
                 firmwareVersionPref.setSummary(firmwareVersion);
-                firmwareEvent.setAction("Firmware version set").setLabel(firmwareVersion);
+//                firmwareEvent.setAction("Firmware version set").setLabel(firmwareVersion);
             }
 
             // Record the firmware version.
-            GAUtils.sendEvent(firmwareEvent);
+//            GAUtils.sendEvent(firmwareEvent);
         }
     }
 
