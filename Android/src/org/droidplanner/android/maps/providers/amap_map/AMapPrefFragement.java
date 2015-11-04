@@ -44,7 +44,6 @@ public class AMapPrefFragement extends MapProviderPreferences {
     private static final String AMAP_TYPE_NORMAL = "normal";
     private static final String AMAP_TYPE_NIGHT = "night";
     private static final String PREF_AMAP_TYPE = "pref_amap_type";
-    private static final String PREF_AMAP_DOWNLOAD = "pref_amap_map_download";
     private static final String DEFAULT_AMAP_TYPE = AMAP_TYPE_SATELLITE;
 
     private void setupAMapMapTypePref(){
@@ -62,17 +61,6 @@ public class AMapPrefFragement extends MapProviderPreferences {
                 }
             });
         }
-    }
-
-    private void setupAMapDownloadPref(){
-        Preference preference = findPreference(PREF_AMAP_DOWNLOAD);
-        preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                startActivity(new Intent(getActivity().getApplicationContext(),AMapOfflineMapActivity.class));
-                return true;
-            }
-        });
     }
 
     public static int getMapType(Context context){
