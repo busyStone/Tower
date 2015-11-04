@@ -36,7 +36,7 @@ public class AMapPrefFragement extends MapProviderPreferences {
 
        addPreferencesFromResource(R.xml.preferences_amap_maps);
 
-       setupAMapMapTypePref();
+       setupAMapMapPref();
 //       setupAMapDownloadPref();
    }
 
@@ -45,8 +45,9 @@ public class AMapPrefFragement extends MapProviderPreferences {
     private static final String AMAP_TYPE_NIGHT = "night";
     private static final String PREF_AMAP_TYPE = "pref_amap_type";
     private static final String DEFAULT_AMAP_TYPE = AMAP_TYPE_SATELLITE;
+    private static final String PREF_AMAP_MAP_DOWNLOAD = "pref_amap_map_download";
 
-    private void setupAMapMapTypePref(){
+    private void setupAMapMapPref(){
         String mapTypeKey = PREF_AMAP_TYPE;
         Preference mapTypePref = findPreference(mapTypeKey);
         if (mapTypePref != null){
@@ -61,7 +62,21 @@ public class AMapPrefFragement extends MapProviderPreferences {
                 }
             });
         }
+
+        // offline
+        Preference downloadPref = findPreference(PREF_AMAP_MAP_DOWNLOAD);
+        if (downloadPref != null){
+            downloadPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    startActivity(new Intent(getActivity(), DownloadAMapMapActivity.class));
+
+                    return true;
+                }
+            });
+        }
     }
+
 
     public static int getMapType(Context context){
         int mapType = AMap.MAP_TYPE_SATELLITE;
