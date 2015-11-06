@@ -45,6 +45,9 @@ import com.amap.api.maps.model.Polygon;
 import com.amap.api.maps.model.PolygonOptions;
 import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
+import com.amap.api.maps.model.TileOverlay;
+import com.amap.api.maps.model.TileOverlayOptions;
+import com.amap.api.maps.model.TileProvider;
 import com.amap.api.maps.model.VisibleRegion;
 import com.o3dr.services.android.lib.coordinate.LatLong;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
@@ -56,6 +59,7 @@ import org.droidplanner.android.graphic.map.GraphicHome;
 import org.droidplanner.android.maps.DPMap;
 import org.droidplanner.android.maps.MarkerInfo;
 import org.droidplanner.android.maps.providers.DPMapProvider;
+import org.droidplanner.android.maps.providers.amap_map.tiles.web.OfflineTileProvider;
 import org.droidplanner.android.utils.DroneHelper;
 import org.droidplanner.android.utils.collection.HashBiMap;
 import org.droidplanner.android.utils.file.DirectoryPath;
@@ -89,6 +93,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private static final IntentFilter eventFilter = new IntentFilter();
 
     private AMap mAmap;
+    private TileOverlay offlineTileProvider;
 
     static {
         eventFilter.addAction(AttributeEvent.GPS_POSITION);
@@ -110,12 +115,11 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private void setupMap(AMap map){
 
         setupMapUI(map);
+        setupMapOverlay(map);
         setupMapListeners(map);
 
         map.setMyLocationEnabled(true);
         map.setMyLocationType(AMap.LOCATION_TYPE_MAP_FOLLOW);
-
-        map.setMapType(AMapPrefFragement.getMapType(getActivity().getApplicationContext()));
     }
 
     private void setupMapUI(AMap map){
@@ -125,6 +129,32 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         mUiSettings.setTiltGesturesEnabled(false);
         mUiSettings.setZoomControlsEnabled(false);
         mUiSettings.setRotateGesturesEnabled(mAppPrefs.isMapRotationEnabled());
+    }
+
+    private void setupMapOverlay(AMap map){
+        Context context = getContext();
+
+        if (!AMapPrefFragement.isOfflineMapLayerEnabled(context)){
+            if (offlineTileProvider != null){
+                offlineTileProvider.remove();
+                offlineTileProvider = null;
+            }
+
+            map.setMapType(AMapPrefFragement.getMapType(getActivity().getApplicationContext()));
+
+            return;
+        }else{
+            map.setMapType(AMap.MAP_TYPE_NORMAL);
+        }
+
+        if (offlineTileProvider == null){
+            final TileProvider tileProvider = new OfflineTileProvider(context,
+                    (int)map.getMinZoomLevel(),
+                    (int)map.getMaxZoomLevel());
+            offlineTileProvider = map.addTileOverlay(new TileOverlayOptions()
+                            .tileProvider(tileProvider)
+            );
+        }
     }
 
     private void setupMapListeners(AMap map){
@@ -284,7 +314,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         }
     }
 
-    private AMap getAMap(){
+    public AMap getAMap(){
         if (mAmap == null){
             mAmap = getMap();
         }
@@ -721,7 +751,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         camera.zoom(settings.getFloat(PREF_ZOOM, DEFAULT_ZOOM_LEVEL));
         camera.target(DroneHelper.CoordToAMapLatLang(
                 new LatLong(settings.getFloat(PREF_LAT, DEFAULT_LATITUDE),
-                settings.getFloat(PREF_LNG, DEFAULT_LONGITUDE))
+                        settings.getFloat(PREF_LNG, DEFAULT_LONGITUDE))
         ));
 
         getAMap().moveCamera(CameraUpdateFactory.newCameraPosition(camera.build()));

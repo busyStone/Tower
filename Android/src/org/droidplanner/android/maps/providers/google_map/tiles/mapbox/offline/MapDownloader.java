@@ -59,11 +59,11 @@ public class MapDownloader {
     }
 
     private MBXOfflineMapDownloaderState state;
-    private final AtomicInteger totalFilesWritten = new AtomicInteger(0);
-    private final AtomicInteger totalFilesExpectedToWrite = new AtomicInteger(0);
+    public final AtomicInteger totalFilesWritten = new AtomicInteger(0);
+    public final AtomicInteger totalFilesExpectedToWrite = new AtomicInteger(0);
 
-    private final Context context;
-    private ExecutorService downloadsScheduler;
+    public final Context context;
+    public ExecutorService downloadsScheduler;
     private final ArrayList<MapDownloaderListener> listeners = new ArrayList<>();
 
     public MapDownloader(Context context) {
@@ -75,6 +75,9 @@ public class MapDownloader {
 
     public MBXOfflineMapDownloaderState getState() {
         return state;
+    }
+    public void setState(MBXOfflineMapDownloaderState state){
+        this.state = state;
     }
 
     public boolean addMapDownloaderListener(MapDownloaderListener listener) {
@@ -289,7 +292,7 @@ public class MapDownloader {
                 .totalFilesExpectedToWrite.get());
     }
 
-    private void finishUpDownloadProcess() {
+    public void finishUpDownloadProcess() {
         if (this.state == MBXOfflineMapDownloaderState.MBXOfflineMapDownloaderStateRunning) {
             Timber.i("Just finished downloading all materials.  Persist the OfflineMapDatabase, change the state, and call it a day.");
             // This is what to do when we've downloaded all the files
@@ -518,7 +521,7 @@ public class MapDownloader {
      *
      * @param urls Map urls
      */
-    private void startDownloadProcess(final String mapId, final List<String> urls) {
+    public void startDownloadProcess(final String mapId, final List<String> urls) {
         downloadsScheduler.execute(new Runnable() {
             @Override
             public void run() {

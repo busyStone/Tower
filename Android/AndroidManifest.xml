@@ -172,6 +172,13 @@
             android:noHistory="true"
             android:theme="@style/CustomActionBarTheme.Transparent"
             android:screenOrientation="landscape" />
+        <activity
+            android:name=".maps.providers.amap_map.DownloadAMapMapActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:theme="@style/CustomActionBarTheme.Transparent"
+            android:screenOrientation="landscape" />
 
         <service android:name=".AppService" />
 

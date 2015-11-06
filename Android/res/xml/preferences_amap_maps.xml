@@ -10,7 +10,7 @@
             android:title="@string/pref_map_type"/>
 
         <CheckBoxPreference
-            android:key="pref_enable_offline_map_layer"
+            android:key="pref_enable_amap_offline_map_layer"
             android:defaultValue="false"
             android:title="@string/pref_title_enable_offline_map_layer"/>
 

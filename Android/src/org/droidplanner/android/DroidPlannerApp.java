@@ -27,6 +27,7 @@ import com.o3dr.services.android.lib.model.AbstractCommandListener;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import org.droidplanner.android.activities.helpers.BluetoothDevicesActivity;
+import org.droidplanner.android.maps.providers.amap_map.tiles.web.offline.AMapDownloader;
 import org.droidplanner.android.maps.providers.google_map.tiles.mapbox.offline.MapDownloader;
 import org.droidplanner.android.proxy.mission.MissionProxy;
 import org.droidplanner.android.utils.LogToFileTree;
@@ -135,6 +136,7 @@ public class DroidPlannerApp extends Application implements DroneListener, Tower
     private DroidPlannerPrefs dpPrefs;
     private LocalBroadcastManager lbm;
     private MapDownloader mapDownloader;
+    private AMapDownloader amapDownloader;
 
     private LogToFileTree logToFileTree;
 
@@ -147,6 +149,7 @@ public class DroidPlannerApp extends Application implements DroneListener, Tower
         dpPrefs = new DroidPlannerPrefs(context);
         lbm = LocalBroadcastManager.getInstance(context);
         mapDownloader = new MapDownloader(context);
+        amapDownloader = new AMapDownloader(context);
 
         controlTower = new ControlTower(context);
         drone = new Drone(context);
@@ -186,6 +189,10 @@ public class DroidPlannerApp extends Application implements DroneListener, Tower
 
     public MapDownloader getMapDownloader() {
         return mapDownloader;
+    }
+
+    public AMapDownloader getAmapDownloader(){
+        return amapDownloader;
     }
 
     public void addApiListener(ApiListener listener) {

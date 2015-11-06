@@ -43,12 +43,15 @@ public class AMapPrefFragement extends MapProviderPreferences {
     private static final String AMAP_TYPE_SATELLITE = "satellite";
     private static final String AMAP_TYPE_NORMAL = "normal";
     private static final String AMAP_TYPE_NIGHT = "night";
-    private static final String PREF_AMAP_TYPE = "pref_amap_type";
-    private static final String DEFAULT_AMAP_TYPE = AMAP_TYPE_SATELLITE;
+    public static final String PREF_AMAP_TYPE = "pref_amap_type";
+    public static final String DEFAULT_AMAP_TYPE = AMAP_TYPE_SATELLITE;
+    private static final String PREF_ENABLE_AMAP_OFFLINE_LAYER = "pref_enable_amap_offline_map_layer";
+    private static final boolean DEFAULT_ENABLE_AMAP_OFFLINE_LAYER = false;
     private static final String PREF_AMAP_MAP_DOWNLOAD = "pref_amap_map_download";
 
     private void setupAMapMapPref(){
-        String mapTypeKey = PREF_AMAP_TYPE;
+
+        final String mapTypeKey = PREF_AMAP_TYPE;
         Preference mapTypePref = findPreference(mapTypeKey);
         if (mapTypePref != null){
             SharedPreferences sharedPref = PreferenceManager
@@ -64,12 +67,28 @@ public class AMapPrefFragement extends MapProviderPreferences {
         }
 
         // offline
+        Preference offlineLayerPref = findPreference(PREF_ENABLE_AMAP_OFFLINE_LAYER);
+        if (offlineLayerPref != null){
+            offlineLayerPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Preference mapTypePref = findPreference(AMapPrefFragement.PREF_AMAP_TYPE);
+                    final boolean isEnabled = (boolean)newValue;
+                    if (mapTypePref != null){
+                        mapTypePref.setEnabled(!isEnabled);
+                    }
+
+                    return true;
+                }
+            });
+        }
+
         Preference downloadPref = findPreference(PREF_AMAP_MAP_DOWNLOAD);
         if (downloadPref != null){
             downloadPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    startActivity(new Intent(getActivity(), DownloadAMapMapActivity.class));
+                    startActivity(new Intent(getContext(), DownloadAMapMapActivity.class));
 
                     return true;
                 }
@@ -101,5 +120,14 @@ public class AMapPrefFragement extends MapProviderPreferences {
         }
 
         return mapType;
+    }
+
+    public static boolean isOfflineMapLayerEnabled(Context context){
+        if (context == null){
+            return DEFAULT_ENABLE_AMAP_OFFLINE_LAYER;
+        }
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        return sharedPref.getBoolean(PREF_ENABLE_AMAP_OFFLINE_LAYER, DEFAULT_ENABLE_AMAP_OFFLINE_LAYER);
     }
 }
