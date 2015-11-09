@@ -123,14 +123,28 @@ public class AMapDownloader extends MapDownloader {
                         Timber.d("URL to download = " + conn.getURL().toString());
 
                         byte[] satellite = executeDownload(conn);
+                        Bitmap bSatellite = BitmapFactory.decodeByteArray(satellite, 0, satellite.length);
 
-                        // satellite
+                        // norm
                         conn = NetworkUtils.getHttpURLConnection(new URL(getMapNormalTileURL(url)));
                         Timber.d("URL to download = " + conn.getURL().toString());
 
                         byte[] normal = executeDownload(conn);
+                        Bitmap bNormal = BitmapFactory.decodeByteArray(normal, 0, normal.length);
 
-                        sqliteSaveDownloadedData(mapId, satellite, url);
+                        Bitmap newb = Bitmap.createBitmap(bSatellite.getWidth(),
+                                bSatellite.getHeight(), Bitmap.Config.ARGB_8888);
+                        Canvas cv = new Canvas(newb);
+                        cv.drawBitmap(bSatellite, 0, 0, null);
+                        cv.drawBitmap(bNormal, 0, 0, null);
+                        cv.save(Canvas.ALL_SAVE_FLAG);
+                        cv.restore();
+
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        newb.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                        byte[] byteArray = stream.toByteArray();
+
+                        sqliteSaveDownloadedData(mapId, byteArray, url);
                     } catch (IOException e) {
                         Timber.e(e, "Error occurred while retrieving map data.");
                     } finally {
