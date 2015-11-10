@@ -29,7 +29,7 @@ public class OfflineTileProvider implements TileProvider{
             return TileProvider.NO_TILE;
         }
 
-        final String tileUri = AMapDownloader.getMapURLParam(x,y,zoom);
+        final String tileUri = AMapDownloader.getMapURLParam(x, y, zoom);
         byte[] data = DatabaseState.getOfflineDatabaseHandlerForMapId(context, "amap.web").dataForURL(tileUri);
         if (data == null || data.length == 0)
             return TileProvider.NO_TILE;

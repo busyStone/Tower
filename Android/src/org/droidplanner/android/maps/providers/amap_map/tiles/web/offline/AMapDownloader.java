@@ -123,28 +123,32 @@ public class AMapDownloader extends MapDownloader {
                         Timber.d("URL to download = " + conn.getURL().toString());
 
                         byte[] satellite = executeDownload(conn);
-                        Bitmap bSatellite = BitmapFactory.decodeByteArray(satellite, 0, satellite.length);
 
                         // norm
                         conn = NetworkUtils.getHttpURLConnection(new URL(getMapNormalTileURL(url)));
                         Timber.d("URL to download = " + conn.getURL().toString());
 
                         byte[] normal = executeDownload(conn);
-                        Bitmap bNormal = BitmapFactory.decodeByteArray(normal, 0, normal.length);
 
-                        Bitmap newb = Bitmap.createBitmap(bSatellite.getWidth(),
-                                bSatellite.getHeight(), Bitmap.Config.ARGB_8888);
-                        Canvas cv = new Canvas(newb);
-                        cv.drawBitmap(bSatellite, 0, 0, null);
-                        cv.drawBitmap(bNormal, 0, 0, null);
-                        cv.save(Canvas.ALL_SAVE_FLAG);
-                        cv.restore();
+                        // draw overlay
+                        if (normal.length > 0 && satellite.length > 0) {
+                            Bitmap bSatellite = BitmapFactory.decodeByteArray(satellite, 0, satellite.length);
+                            Bitmap bNormal = BitmapFactory.decodeByteArray(normal, 0, normal.length);
 
-                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        newb.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                        byte[] byteArray = stream.toByteArray();
+                            Bitmap newb = Bitmap.createBitmap(bSatellite.getWidth(),
+                                    bSatellite.getHeight(), Bitmap.Config.ARGB_8888);
+                            Canvas cv = new Canvas(newb);
+                            cv.drawBitmap(bSatellite, 0, 0, null);
+                            cv.drawBitmap(bNormal, 0, 0, null);
+                            cv.save(Canvas.ALL_SAVE_FLAG);
+                            cv.restore();
 
-                        sqliteSaveDownloadedData(mapId, byteArray, url);
+                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                            newb.compress(Bitmap.CompressFormat.WEBP, 100, stream);
+                            byte[] byteArray = stream.toByteArray();
+
+                            sqliteSaveDownloadedData(mapId, byteArray, url);
+                        }
                     } catch (IOException e) {
                         Timber.e(e, "Error occurred while retrieving map data.");
                     } finally {
