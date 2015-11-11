@@ -153,11 +153,8 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                     (int)map.getMaxZoomLevel());
             offlineTileProvider = map.addTileOverlay(new TileOverlayOptions()
                             .tileProvider(tileProvider)
-                            .diskCacheSize(1024)
-                            .diskCacheEnabled(true)
                             .memCacheSize(1024)
                             .memoryCacheEnabled(true)
-                            .diskCacheDir(DirectoryPath.getAMapPath()+"/cache")
             );
         }
     }
