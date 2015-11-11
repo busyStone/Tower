@@ -19,6 +19,11 @@
             android:title="@string/pref_title_mapbox_map_download"
             android:summary="@string/pref_summary_mapbox_map_download"/>
 
+        <CheckBoxPreference
+            android:title="@string/pref_title_download_menu_option"
+            android:defaultValue="false"
+            android:key="pref_download_menu_option"/>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

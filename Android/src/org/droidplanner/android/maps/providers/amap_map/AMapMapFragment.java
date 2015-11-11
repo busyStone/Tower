@@ -933,25 +933,30 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
         super.onCreateOptionsMenu(menu, inflater);
 
-        inflater.inflate(R.menu.menu_amap_map, menu);
+        inflater.inflate(R.menu.menu_google_map, menu);
     }
 
-    // TODO: 15/9/18 call download
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
-            case R.id.menu_download_amap_map:
-                return super.onOptionsItemSelected(item);
+            case R.id.menu_download_mapbox_map:
+                startActivity(new Intent(getContext(), DownloadAMapMapActivity.class));
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    // TODO: 15/9/18  check download menu
     @Override
     public void onPrepareOptionsMenu(Menu menu){
+        final MenuItem item = menu.findItem(R.id.menu_download_mapbox_map);
+        if(item != null) {
+            final boolean isEnabled = AMapPrefFragement.isAddDownloadMenuOptionEnabled(getContext());
+            item.setEnabled(isEnabled);
+            item.setVisible(isEnabled);
+        }
 
     }
-
 
 }

@@ -48,6 +48,8 @@ public class AMapPrefFragement extends MapProviderPreferences {
     private static final String PREF_ENABLE_AMAP_OFFLINE_LAYER = "pref_enable_amap_offline_map_layer";
     private static final boolean DEFAULT_ENABLE_AMAP_OFFLINE_LAYER = false;
     private static final String PREF_AMAP_MAP_DOWNLOAD = "pref_amap_map_download";
+    private static final String PREF_DOWNLOAD_MENU_OPTION = "pref_download_menu_option";
+    private static final boolean DEFAULT_DOWNLOAD_MENU_OPTION = false;
 
     private void setupAMapMapPref(){
 
@@ -130,4 +132,14 @@ public class AMapPrefFragement extends MapProviderPreferences {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         return sharedPref.getBoolean(PREF_ENABLE_AMAP_OFFLINE_LAYER, DEFAULT_ENABLE_AMAP_OFFLINE_LAYER);
     }
+
+    public  static boolean isAddDownloadMenuOptionEnabled(Context context){
+        if (context == null){
+            return DEFAULT_DOWNLOAD_MENU_OPTION;
+        }
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        return sharedPref.getBoolean(PREF_DOWNLOAD_MENU_OPTION, DEFAULT_DOWNLOAD_MENU_OPTION);
+    }
+
 }
