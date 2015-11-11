@@ -131,7 +131,8 @@ public class AMapDownloader extends MapDownloader {
                         byte[] normal = executeDownload(conn);
 
                         // draw overlay
-                        if (normal.length > 0 && satellite.length > 0) {
+                        if (normal != null && normal.length > 0
+                                && satellite != null && satellite.length > 0) {
                             Bitmap bSatellite = BitmapFactory.decodeByteArray(satellite, 0, satellite.length);
                             Bitmap bNormal = BitmapFactory.decodeByteArray(normal, 0, normal.length);
 
