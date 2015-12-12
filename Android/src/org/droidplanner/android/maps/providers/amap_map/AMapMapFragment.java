@@ -12,9 +12,7 @@ import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,13 +21,11 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
-import com.amap.api.location.LocationManagerProxy;
-import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps.AMap;
-import com.amap.api.maps.AMapException;
 import com.amap.api.maps.CameraUpdateFactory;
-import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapsInitializer;
 import com.amap.api.maps.Projection;
 import com.amap.api.maps.SupportMapFragment;
@@ -72,7 +68,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Timer;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.o3dr.android.client.Drone;
@@ -286,9 +281,9 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private AMapLocation getLastLocation(){
         AMapLocation aMapLocation = null;
 
-        if (mAMapLocationManager != null){
-            aMapLocation = mAMapLocationManager.getLastKnownLocation(LocationProviderProxy.AMapNetwork);
-            if (aMapLocation == null || aMapLocation.getAMapException().getErrorCode() != 0){
+        if (aMapLocationClient != null){
+            aMapLocation = aMapLocationClient.getLastKnownLocation();
+            if (aMapLocation == null || aMapLocation.getErrorCode() != 0){
                 aMapLocation = null;
             }
         }
@@ -358,27 +353,33 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     // ---------------------------------------------------------------------------------------------
     // LocationSource
-    private LocationManagerProxy mAMapLocationManager;
+    private AMapLocationClient aMapLocationClient;
+    private AMapLocationClientOption aMapLocationClientOption;
 
     private void initLocation(){
-        mAMapLocationManager = LocationManagerProxy.getInstance(getActivity());
-        //此方法为每隔固定时间会发起一次定位请求，为了减少电量消耗或网络流量消耗，
-        //注意设置合适的定位时间的间隔，并且在合适时间调用removeUpdates()方法来取消定位请求
-        //在定位结束后，在合适的生命周期调用destroy()方法
-        //其中如果间隔时间为-1，则定位只定一次
-        mAMapLocationManager.requestLocationData(LocationProviderProxy.AMapNetwork,
-                20 * 1000, // minTime
-                10,      // minDistance
-                this);
+
+        if (aMapLocationClient != null) {
+            aMapLocationClient.startLocation();
+
+            return;
+        }
+
+        aMapLocationClientOption = new AMapLocationClientOption();
+        aMapLocationClientOption.setLocationMode(
+                AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+        aMapLocationClientOption.setNeedAddress(false);
+
+        aMapLocationClient = new AMapLocationClient(getActivity().getApplicationContext());
+        aMapLocationClient.setLocationListener(this);
+        aMapLocationClient.setLocationOption(aMapLocationClientOption);
+        aMapLocationClient.startLocation();
     }
 
     private void stopLocation(){
 
-        if (mAMapLocationManager != null) {
-            mAMapLocationManager.removeUpdates(this);
-            mAMapLocationManager.destroy();
+        if (aMapLocationClient != null){
+            aMapLocationClient.stopLocation();
         }
-        mAMapLocationManager = null;
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -389,7 +390,14 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     @Override
     public void onLocationChanged(AMapLocation aMapLocation){
 
-        if (aMapLocation == null || aMapLocation.getAMapException().getErrorCode() != 0){
+        if (aMapLocation == null){
+            return;
+        }
+
+        if (aMapLocation.getErrorCode() != 0){
+            Timber.e("AmapError","location Error, ErrCode:"
+                    + aMapLocation.getErrorCode() + ", errInfo:"
+                    + aMapLocation.getErrorInfo());
             return;
         }
 
@@ -415,22 +423,6 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         if (mLocationListener != null){
             mLocationListener.onLocationChanged(aMapLocation);
         }
-    }
-
-    // ---------------------------------------------------------------------------------------------
-    // LocationListener
-    @Override
-    public void onLocationChanged(Location location) {
-    }
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-    }
-    @Override
-    public void onProviderDisabled(String provider) {
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -537,7 +529,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     }
 
     @Override
-    public void updateMarker(MarkerInfo markerInfo){
+    public void updateMarker(MarkerInfo markerInfo) {
         updateMarker(markerInfo, markerInfo.isDraggable());
     }
 
@@ -927,6 +919,13 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
                 .unregisterReceiver(eventReceiver);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+
+        aMapLocationClient.onDestroy();
     }
 
     @Override

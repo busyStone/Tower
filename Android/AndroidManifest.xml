@@ -181,6 +181,7 @@
             android:screenOrientation="landscape" />
 
         <service android:name=".AppService" />
+        <service android:name="com.amap.api.location.APSService" />
 
     </application>
 
