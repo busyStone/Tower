@@ -33,6 +33,7 @@ import org.droidplanner.android.activities.DrawerNavigationUI;
 import org.droidplanner.android.fragments.control.FlightControlManagerFragment;
 import org.droidplanner.android.fragments.helpers.ApiListenerFragment;
 import org.droidplanner.android.fragments.mode.FlightModePanel;
+import org.droidplanner.android.maps.providers.DPMapProvider;
 import org.droidplanner.android.utils.prefs.AutoPanMode;
 import org.droidplanner.android.view.SlidingDrawer;
 
@@ -407,10 +408,12 @@ public class FlightDataFragment extends ApiListenerFragment implements SlidingDr
      * binary is installed and up to date.
      */
     private void setupMapFragment(boolean showErrorDialog) {
-        final boolean isGMSValid = isGooglePlayServicesValid(showErrorDialog);
+
+        // check and show error msg
+        isGooglePlayServicesValid(showErrorDialog);
 
         final FragmentManager fm = getChildFragmentManager();
-        if (mapFragment == null){// && isGooglePlayServicesValid(true)) {
+        if (mapFragment == null){
             mapFragment = (FlightMapFragment) fm.findFragmentById(R.id.flight_map_fragment);
             if (mapFragment == null) {
                 mapFragment = new FlightMapFragment();
@@ -530,9 +533,11 @@ public class FlightDataFragment extends ApiListenerFragment implements SlidingDr
         // Check for the google play services is available
         final int playStatus = GooglePlayServicesUtil
                 .isGooglePlayServicesAvailable(getContext());
-        final boolean isValid = playStatus == ConnectionResult.SUCCESS;
+        final boolean isValid = DPMapProvider.isGooglePlayServicesValid(playStatus);
 
-        if (!isValid && showErrorDialog) {
+        if (!isValid && showErrorDialog &&
+                DPMapProvider.isGooglePlayServicesNeedShowError(playStatus,
+                        getActivity().getApplicationContext())) {
             final Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(playStatus, getActivity(),
                     GOOGLE_PLAY_SERVICES_REQUEST_CODE, new DialogInterface.OnCancelListener() {
                         @Override

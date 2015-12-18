@@ -30,12 +30,17 @@ public enum DPMapProvider {
 			return new GoogleMapPrefFragment();
 		}
 
+        /**
+         * If gms is valid and not need to upgrade, then google map is valid.
+         * If gms is valid, but need to upgrade, then if location not in china, notify to upgrade.
+         *
+         * @param context
+         * @return
+         */
         @Override
         public boolean IsMapProviderValid(Context context){
-            // Check for the google play services is available
-            final int playStatus = GooglePlayServicesUtil
-                    .isGooglePlayServicesAvailable(context);
-            return playStatus == ConnectionResult.SUCCESS;
+            return isGooglePlayServicesValid(
+                    GooglePlayServicesUtil.isGooglePlayServicesAvailable(context));
         }
 	},
 
@@ -50,6 +55,12 @@ public enum DPMapProvider {
             return new AMapPrefFragement();
         }
 
+        /**
+         * AMap is always valid.
+         *
+         * @param context
+         * @return
+         */
         @Override
         public boolean IsMapProviderValid(Context context){
             return true;
@@ -66,6 +77,12 @@ public enum DPMapProvider {
 	 */
 	public abstract MapProviderPreferences getMapProviderPreferences();
 
+    /**
+     * Make sure the map is valid.
+     *
+     * @param context
+     * @return
+     */
     public abstract boolean IsMapProviderValid(Context context);
 
 	/**
@@ -104,4 +121,51 @@ public enum DPMapProvider {
 	 * By default, Google Map is the map provider.
 	 */
 	public static final DPMapProvider DEFAULT_MAP_PROVIDER = GOOGLE_MAP;
+
+    /**
+     *
+     */
+    public static boolean isGooglePlayServicesValid(int status){
+        return status == ConnectionResult.SUCCESS;
+    }
+
+    /**
+     * Context is application context.
+     *
+     * @param status
+     * @param context
+     * @return
+     */
+    public static boolean isGooglePlayServicesNeedShowError(int status, Context context){
+
+        switch (status){
+            case ConnectionResult.CANCELED:
+            case ConnectionResult.INTERNAL_ERROR:
+            case ConnectionResult.DEVELOPER_ERROR:
+                return true;
+
+            case ConnectionResult.SUCCESS:
+            case ConnectionResult.SERVICE_MISSING:
+                return false;
+
+            // need check location, then may notify user the error
+            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
+            case ConnectionResult.SERVICE_DISABLED:
+            case ConnectionResult.SIGN_IN_REQUIRED:
+            case ConnectionResult.INVALID_ACCOUNT:
+            case ConnectionResult.RESOLUTION_REQUIRED:
+            case ConnectionResult.NETWORK_ERROR:
+            case ConnectionResult.SERVICE_INVALID:
+            case ConnectionResult.LICENSE_CHECK_FAILED:
+            case ConnectionResult.TIMEOUT:
+            case ConnectionResult.INTERRUPTED:
+            case ConnectionResult.API_UNAVAILABLE:
+            case ConnectionResult.SIGN_IN_FAILED:
+            case ConnectionResult.SERVICE_UPDATING:
+            default:
+                break;
+        }
+
+        return !AMapMapFragment.isLocationInChina(context);
+    }
 }

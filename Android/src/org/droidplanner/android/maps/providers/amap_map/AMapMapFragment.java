@@ -24,6 +24,8 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.amap.api.location.CoordinateConverter;
+import com.amap.api.location.DPoint;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.MapsInitializer;
@@ -956,6 +958,32 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             item.setVisible(isEnabled);
         }
 
+    }
+
+    public static boolean isLocationInChina(Context context){
+
+        DroidPlannerPrefs prefs = new DroidPlannerPrefs(context);
+        final SharedPreferences settings = prefs.prefs;
+
+        LatLong latLong =  new LatLong(settings.getFloat(PREF_LAT, DEFAULT_LATITUDE),
+                        settings.getFloat(PREF_LNG, DEFAULT_LONGITUDE));
+
+        CoordinateConverter converter = new CoordinateConverter(context);
+        converter.from(CoordinateConverter.CoordType.GPS);
+
+        DPoint point = new DPoint(latLong.getLongitude(), latLong.getLatitude());
+        DPoint dest;
+
+        try{
+            converter.coord(point);
+            dest = converter.convert();
+        }catch (Exception e){
+            Timber.e(e.toString());
+
+            return false;
+        }
+
+        return converter.isAMapDataAvailable(dest.getX(),dest.getY());
     }
 
 }
