@@ -1,10 +1,15 @@
 package org.droidplanner.android.utils;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.location.Location;
 
+import com.amap.api.location.CoordinateConverter;
+import com.amap.api.location.DPoint;
 import com.google.android.gms.maps.model.LatLng;
 import com.o3dr.services.android.lib.coordinate.LatLong;
+
+import timber.log.Timber;
 
 public class DroneHelper {
 
@@ -38,4 +43,26 @@ public class DroneHelper {
 		final float scale = res.getDisplayMetrics().density;
 		return (int) Math.round(value * scale);
 	}
+
+	// ---------------------------------------------------------------------------------------------
+	// converter
+    public static LatLong ConvertGPS2GCJ(Context context, double lat, double lng){
+
+        CoordinateConverter converter = new CoordinateConverter(context);
+        converter.from(CoordinateConverter.CoordType.GPS);
+
+        DPoint point = new DPoint(lat, lng);
+        DPoint dest;
+        LatLong latLong = new LatLong(lat,lng);
+
+        try{
+            converter.coord(point);
+            dest = converter.convert();
+            latLong = new LatLong(dest.getLatitude(),dest.getLongitude());
+        }catch (Exception e){
+            Timber.e(e.toString());
+        }
+
+        return latLong;
+    }
 }

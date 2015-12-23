@@ -965,25 +965,15 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         DroidPlannerPrefs prefs = new DroidPlannerPrefs(context);
         final SharedPreferences settings = prefs.prefs;
 
-        LatLong latLong =  new LatLong(settings.getFloat(PREF_LAT, DEFAULT_LATITUDE),
-                        settings.getFloat(PREF_LNG, DEFAULT_LONGITUDE));
+        double lat = settings.getFloat(PREF_LAT, DEFAULT_LATITUDE);
+        double lng = settings.getFloat(PREF_LNG, DEFAULT_LONGITUDE);
 
         CoordinateConverter converter = new CoordinateConverter(context);
         converter.from(CoordinateConverter.CoordType.GPS);
 
-        DPoint point = new DPoint(latLong.getLongitude(), latLong.getLatitude());
-        DPoint dest;
+        LatLong latLong = DroneHelper.ConvertGPS2GCJ(context, lat, lng);
 
-        try{
-            converter.coord(point);
-            dest = converter.convert();
-        }catch (Exception e){
-            Timber.e(e.toString());
-
-            return false;
-        }
-
-        return converter.isAMapDataAvailable(dest.getX(),dest.getY());
+        return converter.isAMapDataAvailable(latLong.getLatitude(), latLong.getLongitude());
     }
 
 }
