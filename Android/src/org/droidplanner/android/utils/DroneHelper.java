@@ -26,11 +26,19 @@ public class DroneHelper {
     // ---------------------------------------------------------------------------------------------
     // AMap
     public static com.amap.api.maps.model.LatLng CoordToAMapLatLang(LatLong coord){
-        return new com.amap.api.maps.model.LatLng(coord.getLatitude(),coord.getLongitude());
+        return new com.amap.api.maps.model.LatLng(coord.getLatitude(), coord.getLongitude());
     }
 
-    public static LatLong AMapLatLngToCoord(com.amap.api.maps.model.LatLng point){
-        return new LatLong((float)point.latitude,(float)point.longitude);
+    public static LatLong AMapLatLngToCoord(Context context, com.amap.api.maps.model.LatLng point){
+        return ConvertGCJ2GPS(context, point.latitude, point.longitude);
+    }
+
+    public static com.amap.api.maps.model.LatLng CoordConvert2AMapLatLang(Context context, LatLong coord){
+        return ConvertGPS2GCJ(context, coord.getLatitude(), coord.getLongitude());
+    }
+
+    public static LatLong AMapLatLngConvert2Coord(Context context, com.amap.api.maps.model.LatLng point){
+        return ConvertGCJ2GPS(context, point.latitude, point.longitude);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -46,23 +54,32 @@ public class DroneHelper {
 
 	// ---------------------------------------------------------------------------------------------
 	// converter
-    public static LatLong ConvertGPS2GCJ(Context context, double lat, double lng){
+    public static com.amap.api.maps.model.LatLng ConvertGPS2GCJ(Context context, double lat, double lng){
 
         CoordinateConverter converter = new CoordinateConverter(context);
         converter.from(CoordinateConverter.CoordType.GPS);
 
         DPoint point = new DPoint(lat, lng);
         DPoint dest;
-        LatLong latLong = new LatLong(lat,lng);
+        com.amap.api.maps.model.LatLng latLng = new com.amap.api.maps.model.LatLng(lat,lng);
 
         try{
             converter.coord(point);
             dest = converter.convert();
-            latLong = new LatLong(dest.getLatitude(),dest.getLongitude());
+            latLng = new com.amap.api.maps.model.LatLng(dest.getLatitude(),dest.getLongitude());
         }catch (Exception e){
             Timber.e(e.toString());
         }
 
-        return latLong;
+        return latLng;
+    }
+
+    public static LatLong ConvertGCJ2GPS(Context context, double lat, double lng){
+        com.amap.api.maps.model.LatLng latLng = ConvertGPS2GCJ(context, lat,lng);
+
+        return new LatLong(
+                2 * lat - latLng.latitude,
+                2 * lng - latLng.longitude
+        );
     }
 }
