@@ -145,10 +145,10 @@ public enum DPMapProvider {
                 return true;
 
             case ConnectionResult.SUCCESS:
-            case ConnectionResult.SERVICE_MISSING:
                 return false;
 
             // need check location, then may notify user the error
+            case ConnectionResult.SERVICE_MISSING:
             case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
             case ConnectionResult.SERVICE_DISABLED:
             case ConnectionResult.SIGN_IN_REQUIRED:
