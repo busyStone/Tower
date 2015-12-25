@@ -50,6 +50,8 @@ public class DirectoryPath {
 
 	static public String getAMapPath() { return getPublicDataPath() + "/AMap/"; }
 
+	static public String getDataBasePath() { return getPublicDataPath() + "/DataBase/"; }
+
 	/**
 	 * Storage folder for stacktraces
 	 */

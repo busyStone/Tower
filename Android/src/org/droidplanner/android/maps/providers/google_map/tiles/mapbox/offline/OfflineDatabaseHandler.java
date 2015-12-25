@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import org.droidplanner.android.utils.file.DirectoryPath;
+
 public class OfflineDatabaseHandler extends SQLiteOpenHelper {
 
     private static final String TAG = OfflineDatabaseHandler.class.getSimpleName();
@@ -33,7 +35,7 @@ public class OfflineDatabaseHandler extends SQLiteOpenHelper {
      * @param context Context
      */
     public OfflineDatabaseHandler(Context context, String dbName) {
-        super(context, dbName, null, DATABASE_VERSION);
+        super(context, DirectoryPath.getDataBasePath() + dbName, null, DATABASE_VERSION);
     }
 
     @Override
