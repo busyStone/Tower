@@ -10,6 +10,7 @@ import org.droidplanner.android.maps.providers.amap_map.AMapMapFragment;
 import org.droidplanner.android.maps.providers.amap_map.AMapPrefFragement;
 import org.droidplanner.android.maps.providers.google_map.GoogleMapFragment;
 import org.droidplanner.android.maps.providers.google_map.GoogleMapPrefFragment;
+import org.droidplanner.android.utils.DroneHelper;
 
 /**
  * Contains a listing of the various map providers supported, and implemented in
@@ -166,6 +167,6 @@ public enum DPMapProvider {
                 break;
         }
 
-        return !AMapMapFragment.isLocationInChina(context);
+        return !DroneHelper.isLocationInChina(context);
     }
 }

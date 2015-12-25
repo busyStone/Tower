@@ -24,10 +24,7 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
-import com.amap.api.location.CoordinateConverter;
-import com.amap.api.location.DPoint;
 import com.amap.api.maps.AMap;
-import com.amap.api.maps.CameraUpdate;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.MapsInitializer;
 import com.amap.api.maps.Projection;
@@ -990,21 +987,4 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         }
 
     }
-
-    public static boolean isLocationInChina(Context context){
-
-        DroidPlannerPrefs prefs = new DroidPlannerPrefs(context);
-        final SharedPreferences settings = prefs.prefs;
-
-        double lat = settings.getFloat(PREF_LAT, DEFAULT_LATITUDE);
-        double lng = settings.getFloat(PREF_LNG, DEFAULT_LONGITUDE);
-
-        CoordinateConverter converter = new CoordinateConverter(context);
-        converter.from(CoordinateConverter.CoordType.GPS);
-
-        LatLng latLong = DroneHelper.ConvertGPS2GCJ(context, lat, lng);
-
-        return converter.isAMapDataAvailable(latLong.latitude, latLong.longitude);
-    }
-
 }
