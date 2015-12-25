@@ -656,7 +656,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     public void updateCamera(final LatLong coord, final float zoomLevel) {
         if (coord != null) {
             getAMap().animateCamera(CameraUpdateFactory.newLatLngZoom(
-                    DroneHelper.CoordToAMapLatLang(coord), zoomLevel));
+                    DroneHelper.CoordConvert2AMapLatLang(appContext, coord), zoomLevel));
         }
     }
 
