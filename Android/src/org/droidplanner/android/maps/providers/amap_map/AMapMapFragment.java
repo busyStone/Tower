@@ -753,6 +753,13 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
      */
     @Override
     public void saveCameraPosition() {
+
+        if (getAMap() == null){
+            return;
+        }
+
+        DroneHelper.saveMyLocation2Pref(getActivity().getApplicationContext());
+
         CameraPosition camera = getAMap().getCameraPosition();
 
         LatLong latLong = DroneHelper.AMapLatLngConvert2Coord(appContext,

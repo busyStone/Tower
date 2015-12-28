@@ -13,6 +13,8 @@ import com.o3dr.services.android.lib.coordinate.LatLong;
 import org.droidplanner.android.maps.DPMap;
 import org.droidplanner.android.utils.prefs.DroidPlannerPrefs;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import timber.log.Timber;
 
 public class DroneHelper {
@@ -66,13 +68,25 @@ public class DroneHelper {
 
     // ---------------------------------------------------------------------------------------------
     //
+    private static LatLong myLocation;
+    private static boolean isFirstLocated = false;
     public static void saveMyLocation(Context context, double lat, double lng){
+        myLocation.set(new LatLong(lat,lng));
+        isFirstLocated = true;
+    }
+
+    public static void saveMyLocation2Pref(Context context){
+        if (!isFirstLocated){
+            return;
+        }
+
         DroidPlannerPrefs prefs = new DroidPlannerPrefs(context);
         final SharedPreferences settings = prefs.prefs;
 
         settings.edit()
-                .putFloat(DPMap.PREF_MY_LOCATION_LAT, (float)lat)
-                .putFloat(DPMap.PREF_MY_LOCATION_LNG, (float)lng).apply();
+                .putFloat(DPMap.PREF_MY_LOCATION_LAT, (float) myLocation.getLatitude())
+                .putFloat(DPMap.PREF_MY_LOCATION_LNG, (float) myLocation.getLongitude())
+                .apply();
     }
 
     public static boolean isLocationInChina(Context context){

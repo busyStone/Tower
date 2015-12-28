@@ -748,6 +748,8 @@ public class GoogleMapFragment extends SupportMapFragment implements DPMap, Goog
         if(googleMap == null)
             return;
 
+        DroneHelper.saveMyLocation2Pref(getActivity().getApplicationContext());
+
         CameraPosition camera = googleMap.getCameraPosition();
         mAppPrefs.prefs.edit()
                 .putFloat(PREF_LAT, (float) camera.target.latitude)
