@@ -405,15 +405,21 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         }
 
         if (aMapLocation.getErrorCode() != 0){
-            Timber.e("AmapError","location Error, ErrCode:"
-                    + aMapLocation.getErrorCode() + ", errInfo:"
-                    + aMapLocation.getErrorInfo());
+            Timber.e("AmapError location Error, ErrCode: %d, errInfo: %s",
+                    aMapLocation.getErrorCode(),
+                    aMapLocation.getErrorInfo());
             return;
         }
 
+        Context context = getActivity().getApplicationContext();
+        LatLng latLng = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
+        LatLong latLong = DroneHelper.AMapLatLngConvert2Coord(context, latLng);
+
+        DroneHelper.saveMyLocation(context, latLong.getLatitude(), latLong.getLongitude());
+
         if (userMarker == null){
             final MarkerOptions options = new MarkerOptions()
-                    .position(new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude()))
+                    .position(latLng)
                     .draggable(false)
                     .setFlat(true)
                     .visible(true)
@@ -421,13 +427,13 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.user_location));
             userMarker = getAMap().addMarker(options);
         }else{
-            userMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude()));
+            userMarker.setPosition(latLng);
         }
 
         if (mPanMode.get() == AutoPanMode.USER) {
             Timber.d("User location changed.");
             updateMyLocationCamera(
-                    new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude()),
+                    latLng,
                     (int) getAMap().getCameraPosition().zoom
             );
         }

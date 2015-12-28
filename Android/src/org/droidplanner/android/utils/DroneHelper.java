@@ -66,13 +66,22 @@ public class DroneHelper {
 
     // ---------------------------------------------------------------------------------------------
     //
+    public static void saveMyLocation(Context context, double lat, double lng){
+        DroidPlannerPrefs prefs = new DroidPlannerPrefs(context);
+        final SharedPreferences settings = prefs.prefs;
+
+        settings.edit()
+                .putFloat(DPMap.PREF_MY_LOCATION_LAT, (float)lat)
+                .putFloat(DPMap.PREF_MY_LOCATION_LNG, (float)lng).apply();
+    }
+
     public static boolean isLocationInChina(Context context){
 
         DroidPlannerPrefs prefs = new DroidPlannerPrefs(context);
         final SharedPreferences settings = prefs.prefs;
 
-        double lat = settings.getFloat(DPMap.PREF_LAT, DPMap.DEFAULT_LATITUDE);
-        double lng = settings.getFloat(DPMap.PREF_LNG, DPMap.DEFAULT_LONGITUDE);
+        double lat = settings.getFloat(DPMap.PREF_MY_LOCATION_LAT, DPMap.DEFAULT_LATITUDE);
+        double lng = settings.getFloat(DPMap.PREF_MY_LOCATION_LNG, DPMap.DEFAULT_LONGITUDE);
 
         return isGPSInChina(context, lat, lng);
     }
