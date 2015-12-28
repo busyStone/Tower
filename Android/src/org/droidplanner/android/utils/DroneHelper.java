@@ -71,7 +71,12 @@ public class DroneHelper {
     private static LatLong myLocation;
     private static boolean isFirstLocated = false;
     public static void saveMyLocation(Context context, double lat, double lng){
-        myLocation.set(new LatLong(lat,lng));
+        if (myLocation == null){
+            myLocation = new LatLong(lat, lng);
+        }else{
+            myLocation.set(new LatLong(lat,lng));
+        }
+
         isFirstLocated = true;
     }
 
