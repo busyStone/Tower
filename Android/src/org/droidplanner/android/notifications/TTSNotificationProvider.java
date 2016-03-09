@@ -40,6 +40,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import timber.log.Timber;
+
 /**
  * Implements DroidPlanner audible notifications.
  */
@@ -368,11 +370,15 @@ public class TTSNotificationProvider implements OnInitListener,
 			if (ttsLanguage == null || tts.isLanguageAvailable(ttsLanguage) == TextToSpeech.LANG_NOT_SUPPORTED) {
 				ttsLanguage = Locale.US;
 				if(sdkVersion >= Build.VERSION_CODES.LOLLIPOP) {
-					final Set<Locale> languagesSet = tts.getAvailableLanguages();
-					if(languagesSet != null && !languagesSet.isEmpty()) {
-						final List<Locale> availableLanguages = new ArrayList<>(languagesSet);
+					try {
+						Set<Locale> languagesSet = tts.getAvailableLanguages();
+						if (languagesSet != null && !languagesSet.isEmpty()) {
+							List<Locale> availableLanguages = new ArrayList<>(languagesSet);
 							//Pick the first available language.
 							ttsLanguage = availableLanguages.get(0);
+						}
+					}catch(NullPointerException e){
+					    Timber.w(e, "Caught an exception while retrieving the list of available languages.");
 					}
 				}
 			}

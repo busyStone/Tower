@@ -22,7 +22,8 @@ dependencies {
     compile 'com.android.support:design:23.0.1'
 
     //DroneKit-Android client library.
-    compile 'com.o3dr.android:dronekit-android:2.6.6'
+//    compile 'com.o3dr.android:dronekit-android:2.6.6'
+    compile(name: 'dronekit-android.2.6.6', ext: 'aar')
 
     compile 'me.grantland:autofittextview:0.2.1'
     compile(name:'shimmer-android-release', ext:'aar')
@@ -53,7 +54,7 @@ bugly {
 def versionMajor = 3
 def versionMinor = 2
 def versionPatch = 0
-def versionBuild = 10 //bump for dogfood builds, public betas, etc.
+def versionBuild = 13 //bump for dogfood builds, public betas, etc.
 
 //Logging levels
 def logLevelVerbose = 2;

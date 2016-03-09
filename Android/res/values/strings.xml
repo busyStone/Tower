@@ -526,18 +526,5 @@
     <string name="label_photo">Photo</string>
     <string name="label_record">Record</string>
 
-    <!-- AMap Offline preferences -->
-    <string name="pref_title_amap_map_download">Download Offline Map</string>
-    <string name="pref_summary_amap_map_download">Click to cache map for use while offline</string>
-
-<!-- TODO: Remove or change this placeholder text -->
-    <!--<string name="hello_blank_fragment">Hello blank fragment</string>-->
-    <string name="title_activity_amap_offline_map">AMapOfflineMapActivity</string>
-
-    <!--<string name="hello_world">Hello world!</string>-->
-    <string name="action_settings">Settings</string>
-
-    <!-- amap progress dialog message -->
-    <string name="amap_progress_dialog_message">Fetching...</string>
 
 </resources>

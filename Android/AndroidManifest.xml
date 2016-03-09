@@ -173,14 +173,15 @@
             android:theme="@style/CustomActionBarTheme.Transparent"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".maps.providers.amap_map.AMapOfflineMapActivity"
-            android:label="@string/title_activity_amap_offline_map"
+            android:name=".maps.providers.amap_map.DownloadAMapMapActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:noHistory="true"
+            android:theme="@style/CustomActionBarTheme.Transparent"
             android:screenOrientation="landscape" />
 
         <service android:name=".AppService" />
+        <service android:name="com.amap.api.location.APSService" />
 
     </application>
 

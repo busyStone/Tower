@@ -163,6 +163,9 @@ public class GoogleMapFragment extends SupportMapFragment implements DPMap, Goog
             if (location == null)
                 return;
 
+            DroneHelper.saveMyLocation(getActivity().getApplicationContext(),
+                    location.getLatitude(),location.getLongitude());
+
             //Update the user location icon.
             if (userMarker == null) {
                 final MarkerOptions options = new MarkerOptions()
@@ -744,6 +747,8 @@ public class GoogleMapFragment extends SupportMapFragment implements DPMap, Goog
         final GoogleMap googleMap = getMap();
         if(googleMap == null)
             return;
+
+        DroneHelper.saveMyLocation2Pref(getActivity().getApplicationContext());
 
         CameraPosition camera = googleMap.getCameraPosition();
         mAppPrefs.prefs.edit()

@@ -12,9 +12,7 @@ import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,13 +21,11 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
-import com.amap.api.location.LocationManagerProxy;
-import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps.AMap;
-import com.amap.api.maps.AMapException;
 import com.amap.api.maps.CameraUpdateFactory;
-import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapsInitializer;
 import com.amap.api.maps.Projection;
 import com.amap.api.maps.SupportMapFragment;
@@ -45,6 +41,9 @@ import com.amap.api.maps.model.Polygon;
 import com.amap.api.maps.model.PolygonOptions;
 import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
+import com.amap.api.maps.model.TileOverlay;
+import com.amap.api.maps.model.TileOverlayOptions;
+import com.amap.api.maps.model.TileProvider;
 import com.amap.api.maps.model.VisibleRegion;
 import com.o3dr.services.android.lib.coordinate.LatLong;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
@@ -56,6 +55,7 @@ import org.droidplanner.android.graphic.map.GraphicHome;
 import org.droidplanner.android.maps.DPMap;
 import org.droidplanner.android.maps.MarkerInfo;
 import org.droidplanner.android.maps.providers.DPMapProvider;
+import org.droidplanner.android.maps.providers.amap_map.tiles.web.OfflineTileProvider;
 import org.droidplanner.android.utils.DroneHelper;
 import org.droidplanner.android.utils.collection.HashBiMap;
 import org.droidplanner.android.utils.file.DirectoryPath;
@@ -68,7 +68,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Timer;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.o3dr.android.client.Drone;
@@ -89,6 +88,9 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private static final IntentFilter eventFilter = new IntentFilter();
 
     private AMap mAmap;
+    private TileOverlay offlineTileProvider;
+
+    private Context appContext;
 
     static {
         eventFilter.addAction(AttributeEvent.GPS_POSITION);
@@ -102,7 +104,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private void updateCamera(final LatLong coord) {
         if (coord != null) {
             getAMap().animateCamera(CameraUpdateFactory.newLatLngZoom(
-                    DroneHelper.CoordToAMapLatLang(coord),
+                    DroneHelper.CoordConvert2AMapLatLang(appContext, coord),
                     getAMap().getCameraPosition().zoom));
         }
     }
@@ -110,12 +112,11 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private void setupMap(AMap map){
 
         setupMapUI(map);
+        setupMapOverlay(map);
         setupMapListeners(map);
 
         map.setMyLocationEnabled(true);
         map.setMyLocationType(AMap.LOCATION_TYPE_MAP_FOLLOW);
-
-        map.setMapType(AMapPrefFragement.getMapType(getActivity().getApplicationContext()));
     }
 
     private void setupMapUI(AMap map){
@@ -127,12 +128,41 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         mUiSettings.setRotateGesturesEnabled(mAppPrefs.isMapRotationEnabled());
     }
 
+    private void setupMapOverlay(AMap map){
+        Context context = getContext();
+
+        if (!AMapPrefFragement.isOfflineMapLayerEnabled(context)){
+            if (offlineTileProvider != null){
+                offlineTileProvider.remove();
+                offlineTileProvider = null;
+            }
+
+            map.setMapType(AMapPrefFragement.getMapType(appContext));
+
+            return;
+        }else{
+            map.setMapType(AMap.MAP_TYPE_NORMAL);
+        }
+
+        if (offlineTileProvider == null){
+            final TileProvider tileProvider = new OfflineTileProvider(context,
+                    (int)map.getMinZoomLevel(),
+                    (int)map.getMaxZoomLevel());
+            offlineTileProvider = map.addTileOverlay(new TileOverlayOptions()
+                            .tileProvider(tileProvider)
+                            .memCacheSize(1024)
+                            .memoryCacheEnabled(true)
+            );
+        }
+    }
+
     private void setupMapListeners(AMap map){
         final AMap.OnMapClickListener onMapClickListener = new AMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
                 if (mMapClickListener != null){
-                    mMapClickListener.onMapClick(DroneHelper.AMapLatLngToCoord(latLng));
+                    mMapClickListener.onMapClick(
+                            DroneHelper.AMapLatLngConvert2Coord(appContext, latLng));
                 }
             }
         };
@@ -142,7 +172,8 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             @Override
             public void onMapLongClick(LatLng latLng) {
                 if (mMapLongClickListener != null) {
-                    mMapLongClickListener.onMapLongClick(DroneHelper.AMapLatLngToCoord(latLng));
+                    mMapLongClickListener.onMapLongClick(
+                            DroneHelper.AMapLatLngConvert2Coord(appContext, latLng));
                 }
             }
         });
@@ -153,7 +184,8 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                 if (mMarkerDragListener != null) {
                     final MarkerInfo markerInfo = mBiMarkersMap.getKey(marker);
                     if(!(markerInfo instanceof GraphicHome)) {
-                        markerInfo.setPosition(DroneHelper.AMapLatLngToCoord(marker.getPosition()));
+                        markerInfo.setPosition(
+                                DroneHelper.AMapLatLngConvert2Coord(appContext, marker.getPosition()));
                         mMarkerDragListener.onMarkerDragStart(markerInfo);
                     }
                 }
@@ -164,7 +196,8 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                 if (mMarkerDragListener != null) {
                     final MarkerInfo markerInfo = mBiMarkersMap.getKey(marker);
                     if(!(markerInfo instanceof GraphicHome)) {
-                        markerInfo.setPosition(DroneHelper.AMapLatLngToCoord(marker.getPosition()));
+                        markerInfo.setPosition(DroneHelper.AMapLatLngConvert2Coord(
+                                appContext, marker.getPosition()));
                         mMarkerDragListener.onMarkerDrag(markerInfo);
                     }
 
@@ -175,7 +208,8 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             public void onMarkerDragEnd(Marker marker) {
                 if (mMarkerDragListener != null) {
                     final MarkerInfo markerInfo = mBiMarkersMap.getKey(marker);
-                    markerInfo.setPosition(DroneHelper.AMapLatLngToCoord(marker.getPosition()));
+                    markerInfo.setPosition(DroneHelper.AMapLatLngConvert2Coord(
+                            appContext, marker.getPosition()));
                     mMarkerDragListener.onMarkerDragEnd(markerInfo);
                 }
             }
@@ -254,9 +288,9 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private AMapLocation getLastLocation(){
         AMapLocation aMapLocation = null;
 
-        if (mAMapLocationManager != null){
-            aMapLocation = mAMapLocationManager.getLastKnownLocation(LocationProviderProxy.AMapNetwork);
-            if (aMapLocation == null || aMapLocation.getAMapException().getErrorCode() != 0){
+        if (aMapLocationClient != null){
+            aMapLocation = aMapLocationClient.getLastKnownLocation();
+            if (aMapLocation == null || aMapLocation.getErrorCode() != 0){
                 aMapLocation = null;
             }
         }
@@ -276,7 +310,10 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     private void requestGoToMyLocation(){
         AMapLocation aMapLocation = getLastLocation();
         if (aMapLocation != null){
-            updateCamera(DroneHelper.LocationToCoord(aMapLocation), GO_TO_MY_LOCATION_ZOOM);
+            updateMyLocationCamera(
+                    new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude()),
+                    GO_TO_MY_LOCATION_ZOOM
+            );
 
             if (mLocationListener != null){
                 mLocationListener.onLocationChanged(aMapLocation);
@@ -284,7 +321,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         }
     }
 
-    private AMap getAMap(){
+    public AMap getAMap(){
         if (mAmap == null){
             mAmap = getMap();
         }
@@ -326,27 +363,33 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     // ---------------------------------------------------------------------------------------------
     // LocationSource
-    private LocationManagerProxy mAMapLocationManager;
+    private AMapLocationClient aMapLocationClient;
+    private AMapLocationClientOption aMapLocationClientOption;
 
     private void initLocation(){
-        mAMapLocationManager = LocationManagerProxy.getInstance(getActivity());
-        //此方法为每隔固定时间会发起一次定位请求，为了减少电量消耗或网络流量消耗，
-        //注意设置合适的定位时间的间隔，并且在合适时间调用removeUpdates()方法来取消定位请求
-        //在定位结束后，在合适的生命周期调用destroy()方法
-        //其中如果间隔时间为-1，则定位只定一次
-        mAMapLocationManager.requestLocationData(LocationProviderProxy.AMapNetwork,
-                20 * 1000, // minTime
-                10,      // minDistance
-                this);
+
+        if (aMapLocationClient != null) {
+            aMapLocationClient.startLocation();
+
+            return;
+        }
+
+        aMapLocationClientOption = new AMapLocationClientOption();
+        aMapLocationClientOption.setLocationMode(
+                AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+        aMapLocationClientOption.setNeedAddress(false);
+
+        aMapLocationClient = new AMapLocationClient(appContext);
+        aMapLocationClient.setLocationListener(this);
+        aMapLocationClient.setLocationOption(aMapLocationClientOption);
+        aMapLocationClient.startLocation();
     }
 
     private void stopLocation(){
 
-        if (mAMapLocationManager != null) {
-            mAMapLocationManager.removeUpdates(this);
-            mAMapLocationManager.destroy();
+        if (aMapLocationClient != null){
+            aMapLocationClient.stopLocation();
         }
-        mAMapLocationManager = null;
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -357,13 +400,26 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     @Override
     public void onLocationChanged(AMapLocation aMapLocation){
 
-        if (aMapLocation == null || aMapLocation.getAMapException().getErrorCode() != 0){
+        if (aMapLocation == null){
             return;
         }
 
+        if (aMapLocation.getErrorCode() != 0){
+            Timber.e("AmapError location Error, ErrCode: %d, errInfo: %s",
+                    aMapLocation.getErrorCode(),
+                    aMapLocation.getErrorInfo());
+            return;
+        }
+
+        Context context = getActivity().getApplicationContext();
+        LatLng latLng = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
+        LatLong latLong = DroneHelper.AMapLatLngConvert2Coord(context, latLng);
+
+        DroneHelper.saveMyLocation(context, latLong.getLatitude(), latLong.getLongitude());
+
         if (userMarker == null){
             final MarkerOptions options = new MarkerOptions()
-                    .position(new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude()))
+                    .position(latLng)
                     .draggable(false)
                     .setFlat(true)
                     .visible(true)
@@ -371,34 +427,20 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.user_location));
             userMarker = getAMap().addMarker(options);
         }else{
-            userMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude()));
+            userMarker.setPosition(latLng);
         }
 
         if (mPanMode.get() == AutoPanMode.USER) {
             Timber.d("User location changed.");
-            updateCamera(DroneHelper.LocationToCoord(aMapLocation),
-                    (int) getAMap().getCameraPosition().zoom);
+            updateMyLocationCamera(
+                    latLng,
+                    (int) getAMap().getCameraPosition().zoom
+            );
         }
 
         if (mLocationListener != null){
             mLocationListener.onLocationChanged(aMapLocation);
         }
-    }
-
-    // ---------------------------------------------------------------------------------------------
-    // LocationListener
-    @Override
-    public void onLocationChanged(Location location) {
-    }
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-    }
-    @Override
-    public void onProviderDisabled(String provider) {
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -440,7 +482,12 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     @Override
     public LatLong getMapCenter(){
-        return DroneHelper.AMapLatLngToCoord(getAMap().getCameraPosition().target);
+        // not used
+        return new LatLong(0,0);
+    }
+
+    public LatLng getAMapCenter(){
+        return getAMap().getCameraPosition().target;
     }
 
     @Override
@@ -476,7 +523,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
     @Override
     public void addFlightPathPoint(LatLong coord){
-        final LatLng position = DroneHelper.CoordToAMapLatLang(coord);
+        final LatLng position = DroneHelper.CoordConvert2AMapLatLang(appContext, coord);
 
         if (maxFlightPathSize > 0){
             if (flightPath == null){
@@ -505,7 +552,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     }
 
     @Override
-    public void updateMarker(MarkerInfo markerInfo){
+    public void updateMarker(MarkerInfo markerInfo) {
         updateMarker(markerInfo, markerInfo.isDraggable());
     }
 
@@ -516,7 +563,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             return;
         }
 
-        final LatLng position = DroneHelper.CoordToAMapLatLang(coord);
+        final LatLng position = DroneHelper.CoordConvert2AMapLatLang(appContext, coord);
         Marker marker = mBiMarkersMap.getValue(markerInfo);
         if (marker == null){
             generateMarker(markerInfo, position, isDraggable);
@@ -552,7 +599,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         for (LatLong point : path) {
             LatLng coord = projection.fromScreenLocation(new Point((int) point
                     .getLatitude(), (int) point.getLongitude()));
-            coords.add(DroneHelper.AMapLatLngToCoord(coord));
+            coords.add(DroneHelper.AMapLatLngConvert2Coord(appContext, coord));
         }
 
         return coords;
@@ -612,14 +659,22 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     public void updateCamera(final LatLong coord, final float zoomLevel) {
         if (coord != null) {
             getAMap().animateCamera(CameraUpdateFactory.newLatLngZoom(
-                    DroneHelper.CoordToAMapLatLang(coord), zoomLevel));
+                    DroneHelper.CoordConvert2AMapLatLang(appContext, coord), zoomLevel));
         }
+    }
+
+    public void updateMyLocationCamera(final LatLng latLng, final float zoomLevel){
+        if (latLng == null){
+            return;
+        }
+
+        getAMap().animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
     }
 
     @Override
     public void updateCameraBearing(float bearing) {
-        final CameraPosition cameraPosition = new CameraPosition(DroneHelper.CoordToAMapLatLang
-                (getMapCenter()), getMapZoomLevel(), 0, bearing);
+        final CameraPosition cameraPosition = new CameraPosition(
+                getAMapCenter(), getMapZoomLevel(), 0, bearing);
         getAMap().animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
@@ -628,7 +683,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         List<LatLong> pathCoords = pathSource.getPathPoints();
         final List<LatLng> pathPoints = new ArrayList<LatLng>(pathCoords.size());
         for (LatLong coord : pathCoords) {
-            pathPoints.add(DroneHelper.CoordToAMapLatLang(coord));
+            pathPoints.add(DroneHelper.CoordConvert2AMapLatLang(appContext, coord));
         }
 
         if (mDroneLeashPath == null) {
@@ -646,7 +701,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         List<LatLong> pathCoords = pathSource.getPathPoints();
         final List<LatLng> pathPoints = new ArrayList<>(pathCoords.size());
         for (LatLong coord : pathCoords) {
-            pathPoints.add(DroneHelper.CoordToAMapLatLang(coord));
+            pathPoints.add(DroneHelper.CoordConvert2AMapLatLang(appContext, coord));
         }
 
         if (missionPath == null) {
@@ -670,7 +725,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                     POLYGONS_PATH_DEFAULT_WIDTH);
             final List<LatLng> pathPoints = new ArrayList<LatLng>(contour.size());
             for (LatLong coord : contour) {
-                pathPoints.add(DroneHelper.CoordToAMapLatLang(coord));
+                pathPoints.add(DroneHelper.CoordConvert2AMapLatLang(appContext, coord));
             }
             pathOptions.addAll(pathPoints);
             polygonsPaths.add(getAMap().addPolygon(pathOptions));
@@ -684,7 +739,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         pathOptions.fillColor(FOOTPRINT_FILL_COLOR);
 
         for (LatLong vertex : footprintToBeDraw.getVertexInGlobalFrame()) {
-            pathOptions.add(DroneHelper.CoordToAMapLatLang(vertex));
+            pathOptions.add(DroneHelper.CoordConvert2AMapLatLang(appContext, vertex));
         }
         getAMap().addPolygon(pathOptions);
 
@@ -698,10 +753,21 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
      */
     @Override
     public void saveCameraPosition() {
+
+        if (getAMap() == null){
+            return;
+        }
+
+        DroneHelper.saveMyLocation2Pref(getActivity().getApplicationContext());
+
         CameraPosition camera = getAMap().getCameraPosition();
+
+        LatLong latLong = DroneHelper.AMapLatLngConvert2Coord(appContext,
+                new LatLng(camera.target.latitude, camera.target.longitude));
+
         mAppPrefs.prefs.edit()
-                .putFloat(PREF_LAT, (float) camera.target.latitude)
-                .putFloat(PREF_LNG, (float) camera.target.longitude)
+                .putFloat(PREF_LAT, (float) latLong.getLatitude())
+                .putFloat(PREF_LNG, (float) latLong.getLongitude())
                 .putFloat(PREF_BEA, camera.bearing)
                 .putFloat(PREF_TILT, camera.tilt)
                 .putFloat(PREF_ZOOM, camera.zoom).apply();
@@ -719,9 +785,9 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         camera.bearing(settings.getFloat(PREF_BEA, DEFAULT_BEARING));
         camera.tilt(settings.getFloat(PREF_TILT, DEFAULT_TILT));
         camera.zoom(settings.getFloat(PREF_ZOOM, DEFAULT_ZOOM_LEVEL));
-        camera.target(DroneHelper.CoordToAMapLatLang(
+        camera.target(DroneHelper.CoordConvert2AMapLatLang(appContext,
                 new LatLong(settings.getFloat(PREF_LAT, DEFAULT_LATITUDE),
-                settings.getFloat(PREF_LNG, DEFAULT_LONGITUDE))
+                        settings.getFloat(PREF_LNG, DEFAULT_LONGITUDE))
         ));
 
         getAMap().moveCamera(CameraUpdateFactory.newCameraPosition(camera.build()));
@@ -732,7 +798,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         if (!coords.isEmpty()){
             final List<LatLng> points = new ArrayList<LatLng>();
             for (LatLong corrd : coords){
-                points.add(DroneHelper.CoordToAMapLatLang(corrd));
+                points.add(DroneHelper.CoordConvert2AMapLatLang(appContext, corrd));
             }
 
             final LatLngBounds bounds = getBounds(points);
@@ -760,7 +826,8 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
         final Location myLocation = getLastLocation();
         if (myLocation != null) {
             final List<LatLong> updatedCoords = new ArrayList<LatLong>(coords);
-            updatedCoords.add(DroneHelper.LocationToCoord(myLocation));
+            updatedCoords.add(DroneHelper.AMapLatLngConvert2Coord(appContext,
+                    new LatLng(myLocation.getLatitude(), myLocation.getLongitude())));
             zoomToFit(updatedCoords);
         } else {
             zoomToFit(coords);
@@ -781,9 +848,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         Gps gps = dpApi.getAttribute(AttributeType.GPS);
         if (!gps.isValid()){
-            Toast.makeText(getActivity().getApplicationContext(),
-                    R.string.drone_no_location,
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(appContext, R.string.drone_no_location, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -816,13 +881,13 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
                         .fillColor(FOOTPRINT_FILL_COLOR);
 
                 for (LatLong vertex : pathPoints){
-                    pathOptions.add(DroneHelper.CoordToAMapLatLang(vertex));
+                    pathOptions.add(DroneHelper.CoordConvert2AMapLatLang(appContext, vertex));
                 }
                 footprintPoly = getAMap().addPolygon(pathOptions);
             }else{
                 List<LatLng> list = new ArrayList<LatLng>();
                 for (LatLong vertex : pathPoints){
-                    list.add(DroneHelper.CoordToAMapLatLang(vertex));
+                    list.add(DroneHelper.CoordConvert2AMapLatLang(appContext, vertex));
                 }
                 footprintPoly.setPoints(list);
             }
@@ -835,10 +900,10 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
             return null;
 
         final VisibleRegion mapRegion = map.getProjection().getVisibleRegion();
-        return new VisibleMapArea(DroneHelper.AMapLatLngToCoord(mapRegion.farLeft),
-                DroneHelper.AMapLatLngToCoord(mapRegion.nearLeft),
-                DroneHelper.AMapLatLngToCoord(mapRegion.nearRight),
-                DroneHelper.AMapLatLngToCoord(mapRegion.farRight));
+        return new VisibleMapArea(DroneHelper.AMapLatLngConvert2Coord(appContext, mapRegion.farLeft),
+                DroneHelper.AMapLatLngConvert2Coord(appContext, mapRegion.nearLeft),
+                DroneHelper.AMapLatLngConvert2Coord(appContext, mapRegion.nearRight),
+                DroneHelper.AMapLatLngConvert2Coord(appContext, mapRegion.farRight));
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -849,7 +914,9 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         setHasOptionsMenu(true);
 
-        mAppPrefs = new DroidPlannerPrefs(getActivity().getApplicationContext());
+        appContext = getActivity().getApplicationContext();
+
+        mAppPrefs = new DroidPlannerPrefs(appContext);
 
         final Bundle args = getArguments();
         if (args != null){
@@ -870,7 +937,7 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
 
         setupMap(mAmap);
 
-        LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
+        LocalBroadcastManager.getInstance(appContext)
                 .registerReceiver(eventReceiver, eventFilter);
     }
 
@@ -893,33 +960,44 @@ public class AMapMapFragment extends SupportMapFragment implements DPMap,
     public void onStop(){
         super.onStop();
 
-        LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
+        LocalBroadcastManager.getInstance(appContext)
                 .unregisterReceiver(eventReceiver);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+
+        aMapLocationClient.onDestroy();
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
         super.onCreateOptionsMenu(menu, inflater);
 
-        inflater.inflate(R.menu.menu_amap_map, menu);
+        inflater.inflate(R.menu.menu_google_map, menu);
     }
 
-    // TODO: 15/9/18 call download
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
-            case R.id.menu_download_amap_map:
-                return super.onOptionsItemSelected(item);
+            case R.id.menu_download_mapbox_map:
+                startActivity(new Intent(getContext(), DownloadAMapMapActivity.class));
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    // TODO: 15/9/18  check download menu
     @Override
     public void onPrepareOptionsMenu(Menu menu){
+        final MenuItem item = menu.findItem(R.id.menu_download_mapbox_map);
+        if(item != null) {
+            final boolean isEnabled = AMapPrefFragement.isAddDownloadMenuOptionEnabled(getContext());
+            item.setEnabled(isEnabled);
+            item.setVisible(isEnabled);
+        }
 
     }
-
-
 }

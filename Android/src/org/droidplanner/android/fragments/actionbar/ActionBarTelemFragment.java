@@ -424,12 +424,14 @@ public class ActionBarTelemFragment extends ApiListenerFragment {
         final TextView dischargeView = (TextView) batteryPopupView.findViewById(R.id.bar_power_discharge);
         final TextView currentView = (TextView) batteryPopupView.findViewById(R.id.bar_power_current);
         final TextView remainView = (TextView) batteryPopupView.findViewById(R.id.bar_power_remain);
+        final TextView temperatureView = (TextView)batteryPopupView.findViewById(R.id.bar_power_temperature);
 
         String update;
         Battery droneBattery;
         final int batteryIcon;
         if (!drone.isConnected() || ((droneBattery = drone.getAttribute(AttributeType.BATTERY)) == null)) {
             update = emptyString;
+            temperatureView.setText("T: " + emptyString);
             dischargeView.setText("D: " + emptyString);
             currentView.setText("C: " + emptyString);
             remainView.setText("R: " + emptyString);
@@ -449,6 +451,14 @@ public class ActionBarTelemFragment extends ApiListenerFragment {
             remainView.setText(String.format(Locale.ENGLISH, "R: %2.0f %%", battRemain));
             currentView.setText(String.format("C: %2.1f A", droneBattery.getBatteryCurrent()));
 
+            Double temperature = droneBattery.getBatteryTemperature();
+            String temperatureText;
+            if (temperature == null){
+                temperatureText = "T: " + emptyString;
+            }else{
+                temperatureText = String.format("T: %2.1f ℃", temperature.doubleValue());
+            }
+            temperatureView.setText(temperatureText);
 
             update = String.format(Locale.ENGLISH, "%2.1f V", droneBattery.getBatteryVoltage());
 

@@ -40,10 +40,12 @@ public interface DPMap {
 	int FOOTPRINT_DEFAULT_COLOR = 0;
 	int FOOTPRINT_DEFAULT_WIDTH = 2;
 	int FOOTPRINT_FILL_COLOR = Color.argb(80, 0, 0, 200);
-	
+
+	String PREF_MY_LOCATION_LAT = "pref_my_location_lat";
 	String PREF_LAT = "pref_map_lat";
 	float DEFAULT_LATITUDE = 39.9042110f;//37.8575523f;
 
+	String PREF_MY_LOCATION_LNG = "pref_my_location_lng";
 	String PREF_LNG = "pref_map_lng";
 	float DEFAULT_LONGITUDE = 116.4073950f;//-122.292767f;
 
