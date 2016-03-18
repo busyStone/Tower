@@ -10,7 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.o3dr.android.client.apis.CapabilityApi;
+
 import org.droidplanner.android.R;
+import org.droidplanner.android.fragments.calibration.compass.FragmentSetupCompass;
 import org.droidplanner.android.fragments.calibration.imu.FragmentSetupIMU;
 import org.droidplanner.android.view.viewPager.TabPageIndicator;
 
@@ -51,22 +54,25 @@ public class SensorSetupFragment extends Fragment {
         public Fragment getItem(int i) {
             switch (i) {
                 case 0:
-                default:
                     return new FragmentSetupIMU();
+                case 1:
+                default:
+                    return new FragmentSetupCompass();
             }
         }
 
         @Override
         public int getCount() {
-            return 1;
+            return 2;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                default:
                     return FragmentSetupIMU.getTitle(context);
+                default:
+                    return FragmentSetupCompass.getTitle(context);
             }
         }
     }
