@@ -123,23 +123,27 @@ public class VehicleStatusFragment : ApiListenerFragment() {
                     val battery: Battery = drone.getAttribute(AttributeType.BATTERY)
                     val battRemain = battery.batteryRemain
 
-                    if (battRemain >= 100) {
-                        8
-                    } else if (battRemain >= 87.5) {
-                        7
-                    } else if (battRemain >= 75) {
-                        6
-                    } else if (battRemain >= 62.5) {
-                        5
-                    } else if (battRemain >= 50) {
-                        4
-                    } else if (battRemain >= 37.5) {
-                        3
-                    } else if (battRemain >= 25) {
-                        2
-                    } else if (battRemain >= 12.5) {
-                        1
-                    } else {
+                    if (battRemain != null) {
+                        if (battRemain >= 100) {
+                            8
+                        } else if (battRemain >= 87.5) {
+                            7
+                        } else if (battRemain >= 75) {
+                            6
+                        } else if (battRemain >= 62.5) {
+                            5
+                        } else if (battRemain >= 50) {
+                            4
+                        } else if (battRemain >= 37.5) {
+                            3
+                        } else if (battRemain >= 25) {
+                            2
+                        } else if (battRemain >= 12.5) {
+                            1
+                        } else {
+                            0
+                        }
+                    }else{
                         0
                     }
                 }
