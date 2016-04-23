@@ -103,8 +103,12 @@ public class TTSNotificationProvider implements OnInitListener,
 
                 case AttributeEvent.BATTERY_UPDATED:
                     Battery droneBattery = drone.getAttribute(AttributeType.BATTERY);
-                    if (droneBattery != null)
-                        batteryDischargeNotification(droneBattery.getBatteryRemain());
+                    if (droneBattery != null) {
+						Double remain = droneBattery.getBatteryTemperature();
+						if (remain != null) {
+							batteryDischargeNotification(remain);
+						}
+					}
                     break;
 
                 case AttributeEvent.STATE_VEHICLE_MODE:

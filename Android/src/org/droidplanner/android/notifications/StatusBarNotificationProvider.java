@@ -273,8 +273,13 @@ public class StatusBarNotificationProvider implements NotificationHandler.Notifi
 
         Battery droneBattery = drone.getAttribute(AttributeType.BATTERY);
         String update = droneBattery == null ? "--" : String.format(
-                "%2.1fv (%2.0f%%)", droneBattery.getBatteryVoltage(),
-                droneBattery.getBatteryRemain());
+                "%2.1fv", droneBattery.getBatteryVoltage());
+        Double remain = droneBattery.getBatteryRemain();
+        if (remain != null){
+            update += String.format(" (%2.0f%%)", remain);
+        }else{
+            update += "v --%";
+        }
 
         mInboxBuilder.setLine(3, SpannableUtils.normal("Battery:   ", SpannableUtils.bold(update)));
     }
