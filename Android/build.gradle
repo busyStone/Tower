@@ -23,7 +23,7 @@ dependencies {
 
     //DroneKit-Android client library.
 //    compile 'com.o3dr.android:dronekit-android:2.6.6'
-    compile(name: 'dronekit-android.2.6.6', ext: 'aar')
+    compile(name: 'dronekit-android.2.6.6.2', ext: 'aar')
 
     compile 'me.grantland:autofittextview:0.2.1'
     compile(name:'shimmer-android-release', ext:'aar')
@@ -42,7 +42,7 @@ dependencies {
     //Charts and graph library
     compile 'com.github.lecho:hellocharts-library:1.5.5@aar'
 
-    compile 'com.tencent.bugly:crashreport:1.2.3.8'
+    compile 'com.tencent.bugly:crashreport:1.2.9'
 }
 
 bugly {
@@ -54,7 +54,7 @@ bugly {
 def versionMajor = 3
 def versionMinor = 2
 def versionPatch = 0
-def versionBuild = 13 //bump for dogfood builds, public betas, etc.
+def versionBuild = 15 //bump for dogfood builds, public betas, etc.
 
 //Logging levels
 def logLevelVerbose = 2;

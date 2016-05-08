@@ -428,14 +428,13 @@ public class ActionBarTelemFragment extends ApiListenerFragment {
 
         String update;
         Battery droneBattery;
-        final int batteryIcon;
+        int batteryIcon = R.drawable.ic_battery_circle_0_24dp;;
         if (!drone.isConnected() || ((droneBattery = drone.getAttribute(AttributeType.BATTERY)) == null)) {
             update = emptyString;
             temperatureView.setText("T: " + emptyString);
             dischargeView.setText("D: " + emptyString);
             currentView.setText("C: " + emptyString);
             remainView.setText("R: " + emptyString);
-            batteryIcon = R.drawable.ic_battery_circle_0_24dp;
         } else {
             Double discharge = droneBattery.getBatteryDischarge();
             String dischargeText;
@@ -447,39 +446,50 @@ public class ActionBarTelemFragment extends ApiListenerFragment {
 
             dischargeView.setText(dischargeText);
 
-            final double battRemain = droneBattery.getBatteryRemain();
-            remainView.setText(String.format(Locale.ENGLISH, "R: %2.0f %%", battRemain));
-            currentView.setText(String.format("C: %2.1f A", droneBattery.getBatteryCurrent()));
+            Double remain = droneBattery.getBatteryRemain();
+            if (remain == null){
+                remainView.setText("R: "+emptyString);
+            }else{
+                remainView.setText(String.format(Locale.ENGLISH, "R: %2.0f %%", remain));
+            }
+
+            Double current = droneBattery.getBatteryCurrent();
+            if (current == null){
+                currentView.setText("C: "+emptyString);
+            }else {
+                currentView.setText(String.format("C: %2.1f A", droneBattery.getBatteryCurrent()));
+            }
 
             Double temperature = droneBattery.getBatteryTemperature();
             String temperatureText;
             if (temperature == null){
-                temperatureText = "T: " + emptyString;
+                temperatureView.setText("T: " + emptyString);
             }else{
-                temperatureText = String.format("T: %2.1f ℃", temperature.doubleValue());
+                temperatureView.setText(String.format("T: %2.1f ℃", temperature.doubleValue()));
             }
-            temperatureView.setText(temperatureText);
 
             update = String.format(Locale.ENGLISH, "%2.1f V", droneBattery.getBatteryVoltage());
 
-            if (battRemain >= 100) {
-                batteryIcon = R.drawable.ic_battery_circle_8_24dp;
-            } else if (battRemain >= 87.5) {
-                batteryIcon = R.drawable.ic_battery_circle_7_24dp;
-            } else if (battRemain >= 75) {
-                batteryIcon = R.drawable.ic_battery_circle_6_24dp;
-            } else if (battRemain >= 62.5) {
-                batteryIcon = R.drawable.ic_battery_circle_5_24dp;
-            } else if (battRemain >= 50) {
-                batteryIcon = R.drawable.ic_battery_circle_4_24dp;
-            } else if (battRemain >= 37.5) {
-                batteryIcon = R.drawable.ic_battery_circle_3_24dp;
-            } else if (battRemain >= 25) {
-                batteryIcon = R.drawable.ic_battery_circle_2_24dp;
-            } else if (battRemain >= 12.5) {
-                batteryIcon = R.drawable.ic_battery_circle_1_24dp;
-            } else {
-                batteryIcon = R.drawable.ic_battery_circle_0_24dp;
+            if (remain != null) {
+                if (remain >= 100) {
+                    batteryIcon = R.drawable.ic_battery_circle_8_24dp;
+                } else if (remain >= 87.5) {
+                    batteryIcon = R.drawable.ic_battery_circle_7_24dp;
+                } else if (remain >= 75) {
+                    batteryIcon = R.drawable.ic_battery_circle_6_24dp;
+                } else if (remain >= 62.5) {
+                    batteryIcon = R.drawable.ic_battery_circle_5_24dp;
+                } else if (remain >= 50) {
+                    batteryIcon = R.drawable.ic_battery_circle_4_24dp;
+                } else if (remain >= 37.5) {
+                    batteryIcon = R.drawable.ic_battery_circle_3_24dp;
+                } else if (remain >= 25) {
+                    batteryIcon = R.drawable.ic_battery_circle_2_24dp;
+                } else if (remain >= 12.5) {
+                    batteryIcon = R.drawable.ic_battery_circle_1_24dp;
+                } else {
+                    batteryIcon = R.drawable.ic_battery_circle_0_24dp;
+                }
             }
         }
 
